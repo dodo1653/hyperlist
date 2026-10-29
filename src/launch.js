@@ -1,4 +1,4 @@
-// HYPERLIST launcher: one coin on pump.fun (Solana) and its twin on HyperEVM (Hyperliquid), linked by the creator's
+// HYPEDUAL launcher: one coin on pump.fun (Solana) and its twin on HyperEVM (Hyperliquid), linked by the creator's
 // Solana signature. Bundled to assets/launch.js and loaded only when someone opens the launcher or a twin action.
 import { Buffer } from 'buffer'
 globalThis.Buffer = globalThis.Buffer || Buffer

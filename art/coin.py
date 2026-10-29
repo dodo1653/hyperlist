@@ -1,5 +1,5 @@
-# HYPERLIST's coin image, part 1: a thick glossy coin in Hyperliquid mint with the HYPERLIST mark (three bars and a
-# dot) raised on its face in deep green enamel, a raised rim and a reeded edge. Rendered on a transparent film;
+# HYPEDUAL's coin image, part 1: a thick glossy coin in Hyperliquid mint with the HYPEDUAL mark (a solid disc and a
+# ring, a coin and its twin) raised on its face in deep green enamel, a raised rim and a reeded edge. Rendered on a transparent film;
 # art/compose.py puts it on the background.
 # blender -b --factory-startup --python art/coin.py -- <out.png> [samples] [res] [yaw_deg] [pitch_deg]
 import bpy, bmesh, math, sys, os
@@ -70,11 +70,28 @@ def bar(x1, x2, y, w=2.6, side=1):
     m2 = b.modifiers.new("soft", "BEVEL"); m2.width = 0.014; m2.segments = 5; m2.limit_method = "ANGLE"
     b.data.materials.append(INK); b.data.polygons.foreach_set("use_smooth", [True] * len(b.data.polygons)); b.parent = coin
 # the front always; the back too for the film (the coin turns), mirrored so it reads from behind
+# the dual mark: a solid disc and a ring beside it (a coin and its twin), from the logo's 32-unit grid, sized inside the rim
+Z = 1.0
+def disc_mesh(cx, r_out, r_in, side):
+    # an annulus (or a full disc when r_in is 0) given depth, sitting on the face
+    me = bpy.data.meshes.new("mark"); bm = bmesh.new(); n = 128
+    z0 = side * (FZ - 0.01)
+    outer = [bm.verts.new((cx + r_out * math.cos(2 * math.pi * i / n), r_out * math.sin(2 * math.pi * i / n), z0)) for i in range(n)]
+    if r_in > 0:
+        inner = [bm.verts.new((cx + r_in * math.cos(2 * math.pi * i / n), r_in * math.sin(2 * math.pi * i / n), z0)) for i in range(n)]
+        faces = [bm.faces.new((outer[i], outer[(i + 1) % n], inner[(i + 1) % n], inner[i])) for i in range(n)]
+    else:
+        faces = [bm.faces.new(outer)]
+    ex = bmesh.ops.extrude_face_region(bm, geom=faces)
+    bmesh.ops.translate(bm, vec=(0, 0, side * H), verts=[v for v in ex["geom"] if isinstance(v, bmesh.types.BMVert)])
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces); bm.to_mesh(me); bm.free()
+    o = bpy.data.objects.new("mark", me); sc.collection.objects.link(o)
+    m = o.modifiers.new("soft", "BEVEL"); m.width = 0.014; m.segments = 5; m.limit_method = "ANGLE"
+    o.data.materials.append(INK); o.data.polygons.foreach_set("use_smooth", [True] * len(o.data.polygons)); o.parent = coin
+X = lambda x: (x - 16.3) * Z * K
 for side in ((1, -1) if OUT.endswith(".glb") else (1,)):
-    bar(9, 23, 10.5, side=side); bar(9, 19, 16, side=side); bar(9, 15, 21.5, side=side)
-    bpy.ops.mesh.primitive_cylinder_add(vertices=96, radius=2.3 * K, depth=H, location=(side * (23 - 16) * K, -(21.5 - 16) * K, side * (FZ - 0.01 + H / 2)))
-    d = bpy.context.active_object; m = d.modifiers.new("soft", "BEVEL"); m.width = 0.014; m.segments = 4; m.limit_method = "ANGLE"
-    d.data.materials.append(INK); bpy.ops.object.shade_smooth(); d.parent = coin
+    disc_mesh(side * X(11), 5.2 * Z * K, 0, side)
+    disc_mesh(side * X(21.6), 5.2 * Z * K, 2.8 * Z * K, side)
 
 if OUT.endswith(".glb"):                                # the same coin for the film (three.js): face along +Z here, +Y in glTF
     bpy.ops.object.select_all(action="SELECT")

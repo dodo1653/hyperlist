@@ -1,4 +1,4 @@
-// Solana reads for HYPERLIST without web3.js: base58, program addresses, and the pump.fun accounts we need
+// Solana reads for HYPEDUAL without web3.js: base58, program addresses, and the pump.fun accounts we need
 // (bonding curve, the creator's fee vaults on pump.fun and on PumpSwap, token metadata).
 import { Buffer } from "node:buffer"
 import { ed25519 } from "@noble/curves/ed25519.js"

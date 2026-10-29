@@ -18,7 +18,7 @@ const send = async (a, fn, args) => { const r = await tx(a, encodeFunctionData({
 const read = (fn, args = []) => pub.readContract({ address: twin, abi, functionName: fn, args })
 
 const MINT = 'CiXUtggr2rKf9tjSMueF7JThXGcF5oK1w2GKXjppump'
-const dr = await tx(creator, encodeDeployData({ abi, bytecode, args: ['HyperList', 'HYPERLIST', MINT] })); const twin = dr.contractAddress
+const dr = await tx(creator, encodeDeployData({ abi, bytecode, args: ['HypeDual', 'HYPEDUAL', MINT] })); const twin = dr.contractAddress
 console.log('deployed', twin, 'gas', dr.gasUsed)
 check(dr.gasUsed < 2_000_000n, 'fits a HyperEVM small block (2M gas)')
 check((await read('solMint')) === MINT, 'solMint'); check((await read('creator')).toLowerCase() === creator.toLowerCase(), 'creator')

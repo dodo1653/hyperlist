@@ -1,4 +1,4 @@
-// HYPERLIST film score (38 s, 120 bpm): a clean pulse that builds through the tunnel, typing and chimes on the
+// HYPEDUAL film score (38 s, 120 bpm): a clean pulse that builds through the tunnel, typing and chimes on the
 // launcher, a drop at 0.30 %, pops as the coins fill the meter, and a held chord on the end card.
 // usage: DUR=38 node music.mjs music.wav
 import fs from 'node:fs'
@@ -70,7 +70,7 @@ function groove(t0, t1, { kicks = true, snaps = true, hats = true, bass = true, 
 // 1. the merge (0 - 3.6): a low bed, the two shapes swoosh in, a flash
 pad(0, 3.5, [36, 43, 48, 55], .022, 1.2, .5); sub(0.2, 3.2, 24, .07); whoosh(0.1, 1.5, .1); riser(1.2, 1.25, .16)
 boom(2.45, .55); sparkle(2.47, .06); pluck(2.55, 84, .05, 3, 0, .6)
-// 2. the title (3.6 - 6.8): the coin flies off, a soft arpeggio, a sparkle on "Hyperlist"
+// 2. the title (3.6 - 6.8): the coin flies off, a soft arpeggio, a sparkle on "Hypedual"
 swipe(3.6, .45, .1); groove(3.8, 6.8, { kicks: false, snaps: false, bass: false, amp: .7 }); sparkle(4.4, .045); riser(6.0, .8, .14)
 // 3. the tunnel (6.8 - 12.4): the beat comes in; a swipe and lift at the swap
 boom(6.8, .45); groove(6.8, 12.4); swipe(9.45, .45, .12); riser(8.9, .6, .1); sparkle(9.75, .035)

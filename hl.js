@@ -1,4 +1,4 @@
-// HYPERLIST page. Everything comes from /api/r (the relay), which reads Hyperliquid and Solana live.
+// HYPEDUAL page. Everything comes from /api/r (the relay), which reads Hyperliquid and Solana live.
 (() => {
   const $ = (id) => document.getElementById(id)
   const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]))

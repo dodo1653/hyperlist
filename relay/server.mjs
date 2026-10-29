@@ -1,4 +1,4 @@
-// HYPERLIST relay. Everything it serves is read live:
+// HYPEDUAL relay. Everything it serves is read live:
 //  - Hyperliquid: the HIP-1 ticker gas auction (spotDeployState), HYPE / SOL prices, the newest HIP-1 tickers (spotMeta)
 //  - pump.fun: every bonding-curve trade from the program logs, which carries the creator and the creator's fee (0.30 %)
 //  - Solana: each creator's unclaimed fees (pump.fun creator vault + PumpSwap creator vault)
@@ -158,7 +158,7 @@ async function coinPage(mint) {
 
 // ---------------------------------------------------------------- holders bind a Hyperliquid address (signed by their Solana wallet)
 const binds = load("binds.json", {})
-const bindMsg = (mint, sol, hlAddr) => `HYPERLIST\nI bind Hyperliquid address ${hlAddr}\nto my Solana wallet ${sol}\nfor the Hyperliquid twin of ${mint}.`
+const bindMsg = (mint, sol, hlAddr) => `HYPEDUAL\nI bind Hyperliquid address ${hlAddr}\nto my Solana wallet ${sol}\nfor the Hyperliquid twin of ${mint}.`
 function bind(b) {
   const { mint, sol, hl: hlAddr, sig } = b || {}
   if (!isKey(mint) || !isKey(sol)) throw new Error("bad address")

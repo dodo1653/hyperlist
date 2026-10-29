@@ -11,8 +11,8 @@ export const HYPEREVM = { id: 999, name: "HyperEVM", nativeCurrency: { name: "HY
 const TWIN_ABI = ["name", "symbol", "solMint"].map((n) => ({ type: "function", name: n, stateMutability: "view", inputs: [], outputs: [{ type: "string" }] }))
   .concat([{ type: "function", name: "creator", stateMutability: "view", inputs: [], outputs: [{ type: "address" }] }, { type: "function", name: "root", stateMutability: "view", inputs: [], outputs: [{ type: "bytes32" }] }])
 
-export const twinMsg = (mint, twin) => `HYPERLIST\nThe HyperEVM twin of ${mint}\nis ${twin}.`
-export const snapMsg = (mint) => `HYPERLIST\nTake the holder snapshot of ${mint} now.\nIt can only be taken once.`
+export const twinMsg = (mint, twin) => `HYPEDUAL\nThe HyperEVM twin of ${mint}\nis ${twin}.`
+export const snapMsg = (mint) => `HYPEDUAL\nTake the holder snapshot of ${mint} now.\nIt can only be taken once.`
 
 export function createLaunch({ dir, rpc, coins, binds }) {
   const evm = createPublicClient({ chain: HYPEREVM, transport: viemHttp(process.env.HYPEREVM_RPC || "https://rpc.hyperliquid.xyz/evm") })

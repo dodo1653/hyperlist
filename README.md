@@ -1,4 +1,4 @@
-# HYPERLIST
+# HYPEDUAL
 
 Launch on pump.fun. Land on Hyperliquid.
 
@@ -14,7 +14,7 @@ One flow puts a coin on pump.fun and deploys its twin on HyperEVM (Hyperliquid's
 
 ## The meter
 
-Every bonding-curve trade on pump.fun pays the coin's creator 0.30 %. A ticker on Hyperliquid costs one thing: the HIP-1 spot deploy auction (a 31-hour Dutch auction that falls to 500 HYPE). HYPERLIST reads both live and puts them on one meter, for any coin.
+Every bonding-curve trade on pump.fun pays the coin's creator 0.30 %. A ticker on Hyperliquid costs one thing: the HIP-1 spot deploy auction (a 31-hour Dutch auction that falls to 500 HYPE). HYPEDUAL reads both live and puts them on one meter, for any coin.
 
 ## What is live
 - **The auction**: `spotDeployState` from `api.hyperliquid.xyz/info`, HYPE / SOL from `allMids`, the newest HIP-1 tokens from `spotMeta`.
