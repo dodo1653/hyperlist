@@ -1,0 +1,22 @@
+{
+  "name": "tools",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "@solana/web3.js": "^3.1.1",
+    "buffer": "^6.0.3",
+    "esbuild": "^0.28.2",
+    "ganache": "^7.9.2",
+    "solc": "^0.8.28",
+    "viem": "^2.57.13"
+  },
+  "private": true
+}

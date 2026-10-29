@@ -106,3 +106,38 @@ footer { max-width: 1180px; margin: 50px auto 0; padding: 26px 20px 40px; displa
 .rail .lg img { width: 26px; height: 26px; border-radius: 7px; } .rail .lg.hl { border-color: rgba(151,252,228,.35); color: var(--mint); box-shadow: 0 0 24px rgba(151,252,228,.1); }
 .rail .to { width: 28px; height: 10px; } .rail .to path { stroke: #5b7a75; stroke-width: 1.4; fill: none; }
 @media (max-width: 699px) { .rail .to { display: none; } }
+
+/* launch on both */
+.launch { display: grid; grid-template-columns: 1.35fr 1fr; gap: 14px; align-items: start; }
+.lform { display: grid; grid-template-columns: 200px 1fr; gap: 18px; }
+.pic { position: relative; aspect-ratio: 1; border-radius: 18px; border: 1.5px dashed #1f3d37; background: #06100e; display: grid; place-items: center; text-align: center; cursor: pointer; overflow: hidden; transition: border-color .15s; }
+.pic:hover, .pic.drag { border-color: var(--mint2); } .pic img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; } .pic span { font: 600 14px Geist; color: #a8c2bd; padding: 14px; } .pic small { display: block; font: 500 11px 'Geist Mono'; color: var(--dim); margin-top: 4px; }
+.fields { display: grid; gap: 12px; } .fields .two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.fields label { display: grid; gap: 6px; align-content: start; font: 500 11px 'Geist Mono'; letter-spacing: .08em; text-transform: uppercase; color: #6f8d88; } .fields label small { text-transform: none; letter-spacing: 0; font-size: 11px; color: #5b7a75; }
+.fields input, .fields textarea { background: #06100e; border: 1px solid #16302a; border-radius: 11px; color: var(--ink); font: 500 14.5px Geist; padding: 10px 12px; outline: 0; resize: vertical; text-transform: none; letter-spacing: 0; } .fields input:focus, .fields textarea:focus { border-color: var(--mint2); }
+#lSym { font-family: 'Geist Mono'; text-transform: uppercase; }
+.wal { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.wb { display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 13px; border: 1px solid #16302a; background: #06100e; color: var(--ink); cursor: pointer; text-align: left; min-width: 0; } .wb:hover { border-color: var(--mint2); }
+.wb img { width: 30px; height: 30px; border-radius: 8px; flex: none; } .wb span { min-width: 0; } .wb b { display: block; font: 600 13.5px Geist; } .wb small { display: block; font: 500 11.5px 'Geist Mono'; color: var(--dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .wb.on { border-color: rgba(151,252,228,.4); } .wb.on small { color: var(--mint); }
+.steps2 { list-style: none; margin: 18px 0; padding: 0; display: grid; gap: 4px; }
+.steps2 li { display: flex; align-items: center; gap: 12px; padding: 10px 4px; font: 500 14.5px Geist; color: #6f8d88; border-bottom: 1px solid #0f201c; } .steps2 li:last-child { border: 0; }
+.steps2 i { width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid #1f3d37; flex: none; display: grid; place-items: center; }
+.steps2 li.run { color: var(--ink); } .steps2 li.run i { border-color: var(--mint); border-top-color: transparent; animation: spin .8s linear infinite; } @keyframes spin { to { transform: rotate(360deg) } }
+.steps2 li.ok { color: var(--ink); } .steps2 li.ok i { background: var(--mint); border-color: var(--mint); } .steps2 li.ok i::after { content: ''; width: 9px; height: 5px; border: 2px solid #03201a; border-top: 0; border-right: 0; transform: rotate(-45deg) translate(1px, -1px); }
+.steps2 li.no i { border-color: var(--dn); } .steps2 li.no { color: var(--dn); }
+.btn.wide { width: 100%; justify-content: center; }
+.lnote { margin-top: 10px; font: 500 12.5px 'Geist Mono'; color: var(--dim); min-height: 18px; } .lnote.err { color: var(--dn); }
+.done { margin-top: 14px; padding: 14px; border-radius: 14px; border: 1px solid rgba(151,252,228,.3); background: rgba(151,252,228,.04); display: grid; gap: 8px; font: 500 13px 'Geist Mono'; } .done a { color: var(--mint); text-decoration: none; } .done a:hover { text-decoration: underline; }
+.sub2h { margin: 30px 0 12px; font: 500 11px 'Geist Mono'; letter-spacing: .1em; text-transform: uppercase; color: #5f7e79; }
+.launched { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 10px; } .launched .empty { grid-column: 1 / -1; border: 1px dashed #16302a; border-radius: 16px; }
+.lc { display: grid; grid-template-columns: 46px 1fr auto; gap: 12px; align-items: center; padding: 14px; border-radius: 16px; border: 1px solid #14281f; background: var(--panel); cursor: pointer; } .lc:hover { border-color: #1f3d37; }
+.lc img, .lc .ph { width: 46px; height: 46px; border-radius: 12px; object-fit: cover; background: #122420; display: grid; place-items: center; color: var(--mint); font-weight: 700; }
+.lc b { font: 600 15px Geist; display: block; } .lc small { display: flex; gap: 6px; align-items: center; font: 500 11.5px 'Geist Mono'; color: var(--dim); } .lc small img { width: 14px; height: 14px; border-radius: 4px; }
+.lc .f { font: 600 13px 'Geist Mono'; color: var(--amber); text-align: right; } .lc .f small { justify-content: flex-end; }
+/* the coin card's chains */
+.chains { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 18px; }
+.chain { padding: 14px; border-radius: 14px; border: 1px solid #12261f; background: rgba(0,0,0,.25); display: grid; gap: 6px; align-content: start; }
+.chain .ch1 { display: flex; align-items: center; gap: 8px; font: 600 14px Geist; } .chain .ch1 img { width: 20px; height: 20px; border-radius: 6px; } .chain .ch1 em { margin-left: auto; font: 500 11px 'Geist Mono'; font-style: normal; padding: 3px 8px; border-radius: 99px; background: rgba(151,252,228,.1); color: var(--mint); } .chain .ch1 em.wait { background: rgba(255,255,255,.04); color: var(--dim); }
+.chain small { font: 500 12px 'Geist Mono'; color: #8eaaa5; word-break: break-all; } .chain small a { color: var(--mint); text-decoration: none; } .chain .btn { margin-top: 4px; justify-self: start; }
+@media (max-width: 900px) { .launch { grid-template-columns: 1fr; } .chains { grid-template-columns: 1fr; } }
+@media (max-width: 600px) { .lform { grid-template-columns: 1fr; } .pic { max-width: 200px; } .fields .two { grid-template-columns: 1fr; } }

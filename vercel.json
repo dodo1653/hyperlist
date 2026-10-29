@@ -1,1 +1,8 @@
-{ "cleanUrls": true, "headers": [{ "source": "/assets/(.*)", "headers": [{ "key": "cache-control", "value": "public, max-age=604800" }] }] }
+{
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/m/:id.json", "destination": "/api/m?k=m&id=:id" },
+    { "source": "/i/:id", "destination": "/api/m?k=i&id=:id" }
+  ],
+  "headers": [{ "source": "/assets/(.*)", "headers": [{ "key": "cache-control", "value": "public, max-age=3600" }] }]
+}

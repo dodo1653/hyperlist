@@ -16,6 +16,7 @@ http.createServer(async (req, res) => {
       const r = await fetch(`${RELAY}/v1/${p}${req.method === 'GET' ? '?' + u.searchParams : ''}`, { method: req.method, headers: { 'content-type': 'application/json' }, body: req.method === 'POST' ? Buffer.concat(chunks) : undefined })
       res.writeHead(r.status, { 'content-type': 'application/json' }); return res.end(Buffer.from(await r.arrayBuffer()))
     }
+    if (/^\/(m|i)\/[a-f0-9]{24}/.test(u.pathname)) { const r = await fetch(RELAY + u.pathname); res.writeHead(r.status, { 'content-type': r.headers.get('content-type') || 'application/json' }); return res.end(Buffer.from(await r.arrayBuffer())) }
     if (u.pathname === '/api/img') {
       const r = await fetch(u.searchParams.get('u'), { headers: { 'user-agent': 'Mozilla/5.0' } })
       res.writeHead(r.ok ? 200 : 404, { 'content-type': r.headers.get('content-type') || 'image/png', 'cache-control': 'max-age=3600' }); return res.end(Buffer.from(await r.arrayBuffer()))

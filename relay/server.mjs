@@ -10,6 +10,7 @@ import path from "node:path"
 import { fileURLToPath } from "node:url"
 import { Buffer } from "node:buffer"
 import { b58, unb58, isKey, verify, makeRpc, curveOf, parseCurve, vaults, tokenMeta, PUMP } from "./sol.js"
+import { createLaunch, twinMsg, snapMsg } from "./launch.js"
 
 const PORT = +(process.env.PORT || 8798)
 const rpc = makeRpc(process.env.RPC_URL || "https://solana-rpc.publicnode.com")
@@ -150,12 +151,14 @@ async function coinPage(mint) {
   if (!watch.has(mint)) { watch.add(mint); save("watch.json", [...watch]) }
   await ensureMeta(c)
   if (!vaultOf.has(c.creator) || Date.now() - vaultOf.get(c.creator).at > 30000) await refreshVaults([c.creator])
-  return { ...view(c), graduated: cv.complete, mc: prices.sol ? Math.round((cv.vSol / cv.vTok) * 1e9 * prices.sol) : null, binds: Object.keys(binds[mint] || {}).length, ticker: state().ticker }
+  const L = launch.get(mint), sp = launch.snap(mint)
+  const twin = L ? { address: L.twin, evmCreator: L.evmCreator, at: L.at, root: await launch.onchainRoot(mint), snapshot: sp && { root: sp.root, at: sp.at, holders: sp.holders, total: sp.total } } : null
+  return { ...view(c), twin, graduated: cv.complete, mc: prices.sol ? Math.round((cv.vSol / cv.vTok) * 1e9 * prices.sol) : null, binds: Object.keys(binds[mint] || {}).length, ticker: state().ticker }
 }
 
 // ---------------------------------------------------------------- holders bind a Hyperliquid address (signed by their Solana wallet)
 const binds = load("binds.json", {})
-const bindMsg = (mint, sol, hlAddr) => `HYPERLIST\nI bind Hyperliquid address ${hlAddr}\nto my Solana wallet ${sol}\nfor the HyperCore twin of ${mint}.`
+const bindMsg = (mint, sol, hlAddr) => `HYPERLIST\nI bind Hyperliquid address ${hlAddr}\nto my Solana wallet ${sol}\nfor the Hyperliquid twin of ${mint}.`
 function bind(b) {
   const { mint, sol, hl: hlAddr, sig } = b || {}
   if (!isKey(mint) || !isKey(sol)) throw new Error("bad address")
@@ -166,6 +169,8 @@ function bind(b) {
   return { ok: true, binds: Object.keys(binds[mint]).length }
 }
 
+const launch = createLaunch({ dir: DIR, rpc, coins, binds })
+
 // ---------------------------------------------------------------- http
 const json = (res, v, code = 200) => { res.writeHead(code, { "content-type": "application/json", "access-control-allow-origin": "*", "cache-control": "no-store" }); res.end(JSON.stringify(v)) }
 http.createServer(async (req, res) => {
@@ -175,7 +180,24 @@ http.createServer(async (req, res) => {
     if (u.pathname === "/v1/state") return json(res, state())
     if (u.pathname === "/v1/coin") return json(res, await coinPage(u.searchParams.get("mint") || ""))
     if (u.pathname === "/v1/bindmsg") return json(res, { msg: bindMsg(u.searchParams.get("mint"), u.searchParams.get("sol"), u.searchParams.get("hl")) })
-    if (u.pathname === "/v1/bind" && req.method === "POST") { const ch = []; for await (const x of req) ch.push(x); return json(res, bind(JSON.parse(Buffer.concat(ch).toString() || "{}"))) }
+    const body = async () => { const ch = []; let n = 0; for await (const x of req) { n += x.length; if (n > 3_000_000) throw new Error("too large"); ch.push(x) } return JSON.parse(Buffer.concat(ch).toString() || "{}") }
+    if (u.pathname === "/v1/bind" && req.method === "POST") return json(res, bind(await body()))
+    if (u.pathname === "/v1/upload" && req.method === "POST") return json(res, launch.upload(await body()))
+    if (u.pathname === "/v1/send" && req.method === "POST") return json(res, await launch.send(await body()))
+    if (u.pathname === "/v1/twin" && req.method === "POST") return json(res, await launch.twin(await body()))
+    if (u.pathname === "/v1/snapshot" && req.method === "POST") return json(res, await launch.snapshot(await body()))
+    if (u.pathname === "/v1/twinmsg") return json(res, { msg: twinMsg(u.searchParams.get("mint"), u.searchParams.get("twin")) })
+    if (u.pathname === "/v1/snapmsg") return json(res, { msg: snapMsg(u.searchParams.get("mint")) })
+    if (u.pathname === "/v1/proof") {        // a holder's line in the snapshot: amount + proof for HyperTwin.claim
+      const sp = launch.snap(u.searchParams.get("mint") || ""), a = String(u.searchParams.get("account") || "").toLowerCase()
+      if (!sp) return json(res, { error: "no snapshot yet" }, 404)
+      const e = sp.entries.find((x) => x.account === a)
+      return e ? json(res, { amount: e.amount, proof: sp.proofs[a], root: sp.root }) : json(res, { error: "that address is not in the snapshot" }, 404)
+    }
+    if (u.pathname === "/v1/snapfile") { const sp = launch.snap(u.searchParams.get("mint") || ""); return sp ? json(res, { root: sp.root, at: sp.at, entries: sp.entries.map(({ account, amount }) => ({ account, amount })) }) : json(res, { error: "no snapshot yet" }, 404) }
+    if (u.pathname === "/v1/launches") return json(res, { coins: launch.list().slice(0, 40).map((L) => { const c = coins.get(L.mint); return { ...L, fees1h: c ? +sum(c.fees).toFixed(4) : 0, snapshot: !!launch.snap(L.mint) } }) })
+    const mi = u.pathname.match(/^\/(m|i)\/([a-f0-9]{24})(\.json)?$/)
+    if (mi) { const f = launch.serve(mi[1], mi[2]); if (!f) return json(res, { error: "not found" }, 404); res.writeHead(200, { "content-type": f.type, "cache-control": "public, max-age=31536000, immutable", "access-control-allow-origin": "*" }); return res.end(f.body) }
     json(res, { error: "not found" }, 404)
   } catch (e) { json(res, { error: e.message || String(e) }, 400) }
 }).listen(PORT, "127.0.0.1", () => console.log("hyperlist relay on " + PORT))

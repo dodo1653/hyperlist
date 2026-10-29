@@ -14,7 +14,7 @@
 <body>
 <div class="navwrap"><header class="top">
   <a class="word" href="#"><svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9"/><path d="M9 10.5h14M9 16h10M9 21.5h6"/><circle cx="23" cy="21.5" r="2.2"/></svg><span>HYPERLIST</span></a>
-  <nav><a href="#check">Check a coin</a><a href="#race">The race</a><a href="#how">How it works</a><a href="#hlist">$HLIST</a></nav>
+  <nav><a href="#launch">Launch</a><a href="#check">Check a coin</a><a href="#race">The race</a><a href="#how">How it works</a><a href="#hlist">$HLIST</a></nav>
   <span class="live"><i id="dot"></i><span id="liveTxt">connecting</span></span>
   <span class="ca" id="ca">CA soon</span>
 </header></div>
@@ -22,8 +22,8 @@
 <main>
 <section class="hero">
   <div class="eyebrow"><img src="assets/platforms/pumpfun.png" alt=""><span>pump.fun</span><svg viewBox="0 0 20 8"><path d="M0 4h17M14 1l3 3-3 3"/></svg><img src="assets/platforms/hyperliquid.png" alt=""><span>Hyperliquid</span></div>
-  <h1>Your coin's fees buy<br>its <em>Hyperliquid</em> listing.</h1>
-  <p class="sub">Every pump.fun trade pays the coin's creator 0.30 %. A ticker on Hyperliquid costs one thing: the HIP-1 auction. HYPERLIST puts the two on one live meter, for any coin.</p>
+  <h1>Launch on pump.fun.<br>Land on <em>Hyperliquid</em>.</h1>
+  <p class="sub">One flow puts your coin on pump.fun and deploys its twin on HyperEVM, linked by your signature. Holders claim the twin, and every trade's creator fee counts toward its HyperCore ticker, live.</p>
   <div class="stage" id="stage">
     <svg class="wires" id="wires" viewBox="0 0 1180 460" preserveAspectRatio="none"></svg>
     <div class="colhead l"><img src="assets/platforms/pumpfun.png" alt="">pump.fun creator fees · last hour</div>
@@ -43,8 +43,31 @@
   <div class="rail"><span class="rl">every trade pays the creator, wherever it's placed</span>
     <span class="logos"><span class="lg"><img src="assets/platforms/pumpfun.png" alt="">pump.fun</span><span class="lg"><img src="assets/platforms/axiom.png" alt="">Axiom</span><span class="lg"><img src="assets/platforms/gmgn.png" alt="">GMGN</span><span class="lg"><img src="assets/platforms/fomo.png" alt="">Fomo</span><span class="lg"><img src="assets/platforms/terminal.png" alt="">Terminal</span>
     <svg class="to" viewBox="0 0 28 10"><path d="M0 5h24M20 1l4 4-4 4"/></svg><span class="lg hl"><img src="assets/platforms/hyperliquid.png" alt="">Hyperliquid ticker</span></span></div>
-  <div class="cta"><a class="btn" href="#check">Check your coin</a><a class="btn ghost" href="#race">See the race</a></div>
+  <div class="cta"><a class="btn" href="#launch">Launch on both</a><a class="btn ghost" href="#check">Check your coin</a></div>
   <div class="strip"><span><b id="sFees">–</b> SOL paid to pump.fun creators in the last hour</span><i></i><span><b id="sTrades">–</b> trades read</span><i></i><span><b id="sFloor">–</b> ticker floor</span></div>
+</section>
+
+<section class="sec" id="launch">
+  <div class="sh"><h2>Launch on both</h2><p>Your coin goes live on pump.fun, its twin deploys on HyperEVM (Hyperliquid's chain), and your Solana wallet signs the link between them. Four steps, about a minute.</p></div>
+  <div class="launch">
+    <form class="lform card" id="lf" autocomplete="off">
+      <label class="pic" id="lPic"><input type="file" id="lFile" accept="image/png,image/jpeg,image/webp,image/gif" hidden><img id="lPrev" alt="" hidden><span>Drop the coin's picture<small>png, jpg, webp or gif</small></span></label>
+      <div class="fields">
+        <div class="two"><label>Name<input id="lName" maxlength="32" placeholder="HyperList"></label><label>Ticker<input id="lSym" maxlength="6" placeholder="HLIST"><small>up to 6, so the Hyperliquid ticker matches</small></label></div>
+        <label>Description<textarea id="lDesc" maxlength="600" rows="3" placeholder="what it is, in a line or two"></textarea></label>
+        <div class="two"><label>X link<input id="lX" placeholder="https://x.com/…"></label><label>Your buy at launch<input id="lBuy" type="number" min="0" step="0.1" value="0"><small>SOL, 0 for none</small></label></div>
+      </div>
+    </form>
+    <div class="lside card">
+      <div class="wal"><button type="button" class="wb" id="wSol"><img src="assets/platforms/pumpfun.png" alt=""><span><b>Solana wallet</b><small>connect</small></span></button><button type="button" class="wb" id="wEvm"><img src="assets/platforms/hyperliquid.png" alt=""><span><b>HyperEVM wallet</b><small>connect</small></span></button></div>
+      <ol class="steps2" id="lSteps"><li data-k="meta"><i></i><span>Picture and details saved</span></li><li data-k="pump"><i></i><span>Live on pump.fun</span></li><li data-k="twin"><i></i><span>Twin deployed on HyperEVM</span></li><li data-k="link"><i></i><span>Linked by your Solana signature</span></li></ol>
+      <button class="btn wide" id="lGo">Launch on both</button>
+      <div class="lnote" id="lNote">Three signatures: the launch, the twin (a few cents of HYPE on HyperEVM), and the link.</div>
+      <div id="lDone"></div>
+    </div>
+  </div>
+  <div class="sub2h">Launched on both</div>
+  <div class="launched" id="launched"><div class="empty">The first coin launched here shows up with both its addresses.</div></div>
 </section>
 
 <section class="sec" id="check">
@@ -61,19 +84,19 @@
 <section class="sec" id="how">
   <div class="sh"><h2>How it works</h2></div>
   <div class="steps">
-    <div><b>01</b><h3>Fees</h3><p>Every bonding-curve trade on pump.fun pays the coin's creator 0.30 % into a vault on Solana. We read each trade's fee straight from the program logs.</p></div>
-    <div><b>02</b><h3>The meter</h3><p>The vaults on one side, Hyperliquid's HIP-1 auction on the other: a 31-hour Dutch auction that falls to a 500 HYPE floor. Both read live, nothing estimated.</p></div>
-    <div><b>03</b><h3>The bid</h3><p>When a fund covers the price, its wallet bids and deploys the ticker (up to 6 letters) on HyperCore. Every step is posted with its transaction.</p></div>
-    <div><b>04</b><h3>The twin</h3><p>Genesis balances go to holders who bound a Hyperliquid address with their Solana wallet, pro rata to a snapshot of the coin.</p></div>
+    <div><b>01</b><h3>pump.fun</h3><p>The coin launches on pump.fun from your wallet, as any other: same curve, same graduation, and every trade pays you, the creator, 0.30 %.</p></div>
+    <div><b>02</b><h3>HyperEVM twin</h3><p>In the same flow, your EVM wallet deploys its twin on HyperEVM: same name and ticker, 1B supply, the pump.fun mint written into the contract, no mint or admin keys.</p></div>
+    <div><b>03</b><h3>Holders claim</h3><p>Holders bind a Hyperliquid address with their Solana wallet. You take one snapshot, post its root once, and each holder claims their exact balance on HyperEVM.</p></div>
+    <div><b>04</b><h3>HyperCore ticker</h3><p>The twin is what HIP-1 links to a ticker on Hyperliquid's order book. The price is the live 31-hour auction; your creator fees fill the meter toward it.</p></div>
   </div>
   <div class="notes">
-    <p><b>Straight answers.</b> The HyperCore twin is a new HIP-1 token, not a bridge of the Solana coin. Someone has to place the bid: for $HLIST it is our fund wallet, for any other coin it is that coin's creator. Binding an address is a signed message, it moves nothing, and HYPERLIST never holds your funds.</p>
+    <p><b>Straight answers.</b> The twin is its own token on HyperEVM, claimed from a snapshot, not a live bridge: tokens bought on pump.fun after the snapshot don't follow. The HyperCore ticker takes a real HIP-1 bid in HYPE, placed by the coin's creator (for $HLIST, our fund wallet). Every snapshot is public and the page checks it against the root on chain. Binding is a signed message; HYPERLIST never holds your funds.</p>
   </div>
 </section>
 
 <section class="sec" id="hlist">
   <div class="hl">
-    <div><h2>$HLIST</h2><p>Our coin runs the same meter in public: its creator fees go to the fund wallet, and the fund bids for the HLIST ticker on Hyperliquid. Holders bind their address below, and the twin's genesis follows the snapshot.</p></div>
+    <div><h2>$HLIST</h2><p>Our own coin launches here like any other: on pump.fun, with its twin on HyperEVM from the first minute. Its creator fees go to the fund wallet, which bids for the HLIST ticker on HyperCore when the meter is full. Every step is posted with its transaction.</p></div>
     <div class="hlcard" id="hlCard"><small>fund</small><b>opens at launch</b><span>the contract address goes here the minute it exists</span></div>
   </div>
 </section>

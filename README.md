@@ -1,6 +1,18 @@
 # HYPERLIST
 
-pump.fun creator fees, pointed at a Hyperliquid listing.
+Launch on pump.fun. Land on Hyperliquid.
+
+One flow puts a coin on pump.fun and deploys its twin on HyperEVM (Hyperliquid's EVM), linked by the creator's Solana signature:
+
+1. **pump.fun**: the coin is created from the creator's wallet (PumpPortal builds the transaction, the wallet signs it). Its metadata lives on this site's domain (`/m/<id>.json`, `/i/<id>`).
+2. **HyperEVM twin**: the creator's EVM wallet deploys `contracts/HyperTwin.sol`: same name and ticker, 1B supply, 6 decimals, the pump.fun mint written into the contract, no mint, pause, fee or admin keys.
+3. **The link**: the coin's Solana creator signs `twin of <mint> is <0x…>`; the relay checks the signature against the bonding curve's creator and reads the contract on HyperEVM before listing it.
+4. **Holders claim**: holders bind an address with their Solana wallet; the creator takes ONE snapshot (signed), posts its root ONCE, and every holder claims their exact balance. The snapshot is public and the page compares it with the root on chain.
+5. **HyperCore ticker**: the twin is what a HIP-1 deployment links to a Hyperliquid order book ticker. The live meter below tracks the creator's fees against that auction.
+
+`node tools/build.mjs` compiles the contract into `assets/twin.json`; `node tools/test_twin.mjs` (17 checks) and `node tools/test_flow.mjs` (18 checks, the relay's launch flow against a local chain) run the tests. `src/launch.js` is bundled to `assets/launch.js` with esbuild.
+
+## The meter
 
 Every bonding-curve trade on pump.fun pays the coin's creator 0.30 %. A ticker on Hyperliquid costs one thing: the HIP-1 spot deploy auction (a 31-hour Dutch auction that falls to 500 HYPE). HYPERLIST reads both live and puts them on one meter, for any coin.
 
