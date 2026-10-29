@@ -13,7 +13,7 @@ Launch on pump.fun. Land on Hyperliquid.
 
 One flow puts your coin on pump.fun and deploys its twin on HyperEVM, linked by your Solana signature. Holders claim the twin. Every trade's creator fee fills a live meter toward a HyperCore ticker.
 
-<site>
+hyperlist-pad.vercel.app
 CA: <CA>
 
 ---
@@ -36,10 +36,10 @@ Contract: github.com/dodo1653/hyperlist
 
 Every pump.fun trade pays the coin's creator 0.30 %.
 
-A ticker on Hyperliquid's order book costs one HIP-1 auction: 31 hours, falling to 500 HYPE (about $47K tonight).
+A ticker on Hyperliquid's order book costs one HIP-1 auction: 31 hours, falling to a 500 HYPE floor (about $47K right now).
 
 HYPERLIST reads both live, for any coin. Paste a CA:
-<site>
+hyperlist-pad.vercel.app
 
 ---
 
@@ -49,7 +49,7 @@ pump.fun brought Hyperliquid perps to its app yesterday.
 
 HYPERLIST goes the other way: coins born on pump.fun, with a twin on Hyperliquid from the first minute.
 
-<site>
+hyperlist-pad.vercel.app
 
 ---
 

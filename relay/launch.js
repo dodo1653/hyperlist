@@ -30,7 +30,7 @@ export function createLaunch({ dir, rpc, coins, binds }) {
     if (!/^[A-Z0-9]{1,10}$/.test(symbol)) throw new Error("tickers are 1 to 10 letters or digits")
     const hour = Date.now() - 3600_000
     for (const c of coins.values()) if (c.last > hour && c.symbol && c.symbol.toUpperCase() === symbol) throw new Error(`$${c.symbol} traded on pump.fun in the last hour. pick a ticker that's yours`)
-    const origin = /^https:\/\/[a-z0-9.-]{3,80}$/.test(String(b.origin || "")) ? b.origin : "https://hyperlist.vercel.app"
+    const origin = /^https:\/\/[a-z0-9.-]{3,80}$/.test(String(b.origin || "")) ? b.origin : "https://hyperlist-pad.vercel.app"
     const m = String(b.image || "").match(/^data:(image\/(png|jpeg|webp|gif));base64,(.+)$/)
     if (!m) throw new Error("the image must be png, jpg, webp or gif")
     const bytes = Buffer.from(m[3], "base64"); if (bytes.length > 1_900_000) throw new Error("the image is too large (max 1.9 MB)")
