@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>HYPERLIST film</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+  html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; background: #000; font-family: Inter, sans-serif; -webkit-font-smoothing: antialiased; }
+  canvas#gl { position: absolute; inset: 0; }
+  .ov { position: absolute; pointer-events: none; }
+  .full { inset: 0; }
+  .words { left: 0; right: 0; display: flex; justify-content: center; gap: .26em; white-space: nowrap; }
+  .words span { display: inline-block; will-change: filter, opacity, transform; }
+  .serif { font-family: 'Instrument Serif', serif; font-style: italic; font-weight: 400; }
+  #glow { background: radial-gradient(circle at 50% 50%, rgba(46,140,118,.55), rgba(10,40,34,.25) 26%, transparent 46%); }
+  #circle { left: 50%; top: 50%; width: 1240px; height: 1240px; margin: -620px 0 0 -620px; border-radius: 50%; border: 1.5px solid rgba(151,252,228,.12); }
+  #flash { background: radial-gradient(circle at 50% 50%, rgba(220,255,247,.95), rgba(151,252,228,.5) 18%, transparent 52%); opacity: 0; }
+  #arcs svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  #light { background: radial-gradient(ellipse 90% 70% at 50% 30%, #ffffff 30%, #e9fff8 60%, #9ff3dc 100%); }
+  #dark5 { background: radial-gradient(ellipse 80% 70% at 50% 40%, #134a40, #071a16 75%); }
+  /* the launch card (the site's own launcher) */
+  #card { left: 50%; top: 545px; width: 1180px; transform-origin: 50% 0; }
+  .lc { display: grid; grid-template-columns: 1.3fr 1fr; gap: 18px; padding: 22px; border-radius: 30px; background: #08110f; border: 1px solid #16302a; box-shadow: 0 50px 120px rgba(4,40,32,.35), 0 10px 30px rgba(0,0,0,.2); }
+  .lf { display: grid; grid-template-columns: 210px 1fr; gap: 18px; }
+  .pic { width: 210px; height: 210px; border-radius: 20px; overflow: hidden; background: #06100e; border: 1.5px dashed #1f3d37; }
+  .pic img { width: 100%; height: 100%; object-fit: cover; opacity: 0; }
+  .fl { display: grid; gap: 14px; align-content: start; } .fl label { display: grid; gap: 7px; font: 500 13px Inter; letter-spacing: .1em; color: #6f8d88; text-transform: uppercase; }
+  .in { text-transform: none; letter-spacing: 0; height: 50px; border-radius: 13px; background: #06100e; border: 1px solid #16302a; color: #ecfffa; font: 500 20px Inter; display: flex; align-items: center; padding: 0 16px; }
+  .in.on { border-color: #4fd1bd; } .in b { font-weight: 500; } .in i { width: 2px; height: 24px; background: #97fce4; margin-left: 2px; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .side { display: grid; gap: 4px; align-content: start; }
+  .st { display: flex; align-items: center; gap: 14px; padding: 13px 4px; font: 500 20px Inter; color: #6f8d88; border-bottom: 1px solid #0f201c; }
+  .st:last-of-type { border: 0; }
+  .st .dot { width: 26px; height: 26px; border-radius: 50%; border: 2px solid #1f3d37; display: grid; place-items: center; flex: none; }
+  .st.ok { color: #ecfffa; } .st.ok .dot { background: #97fce4; border-color: #97fce4; } .st.ok .dot::after { content: ''; width: 10px; height: 6px; border: 2.5px solid #03201a; border-top: 0; border-right: 0; transform: rotate(-45deg) translate(1px, -1px); }
+  .st.run { color: #ecfffa; } .st.run .dot { border-color: #97fce4; border-top-color: transparent; }
+  .go { margin-top: 12px; height: 58px; border-radius: 14px; background: #97fce4; color: #03201a; font: 600 21px Inter; display: grid; place-items: center; }
+  .wal { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 8px; } .wb { display: flex; gap: 10px; align-items: center; padding: 10px; border-radius: 14px; border: 1px solid #16302a; background: #06100e; color: #ecfffa; font: 600 16px Inter; } .wb img { width: 34px; height: 34px; border-radius: 9px; } .wb small { display: block; font: 500 13px Inter; color: #97fce4; }
+  #cursor { width: 34px; height: 34px; left: 0; top: 0; }
+  /* dial */
+  #dial { left: 50%; top: 50%; width: 600px; height: 600px; margin: -300px 0 0 -300px; border-radius: 50%; background: radial-gradient(circle at 50% 35%, #0f201c, #050b0a 70%); border: 1.5px solid #1a3530; box-shadow: 0 0 0 18px rgba(151,252,228,.025), 0 0 0 40px rgba(151,252,228,.015), 0 60px 160px rgba(151,252,228,.14); }
+  #dial svg { position: absolute; inset: 18px; transform: rotate(-90deg); }
+  #dial .in2 { position: absolute; inset: 0; display: grid; place-items: center; align-content: center; gap: 10px; }
+  #dial small { font: 500 18px Inter; letter-spacing: .14em; text-transform: uppercase; color: #6f8d88; }
+  #dial .num { font: 600 110px/1 Inter; letter-spacing: -.04em; color: #ecfffa; font-variant-numeric: tabular-nums; } #dial .num b { font: 600 30px Inter; color: #97fce4; margin-left: 10px; letter-spacing: 0; }
+  #dial .usd { font: 500 28px Inter; color: #b9d3ce; }
+  .chip { position: absolute; padding: 18px 26px; border-radius: 20px; background: rgba(8,17,15,.82); border: 1px solid #1d3e37; color: #ecfffa; font: 500 30px Inter; box-shadow: 0 20px 50px rgba(0,0,0,.35); white-space: nowrap; }
+  .chip b { color: #97fce4; font-weight: 600; }
+  .icon { position: absolute; width: 130px; height: 130px; border-radius: 30px; box-shadow: 0 20px 50px rgba(4,60,48,.22); }
+  #end .mark { position: absolute; left: 50%; top: 640px; transform: translateX(-50%); display: flex; align-items: center; gap: 26px; font: 700 96px Inter; letter-spacing: .06em; color: #ecfffa; }
+  #end .mark svg { width: 92px; height: 92px; }
+  #end .tag { position: absolute; left: 0; right: 0; top: 790px; text-align: center; font: 500 42px Inter; color: #b9d3ce; letter-spacing: -.01em; }
+  #end .tkr { position: absolute; left: 0; right: 0; top: 870px; text-align: center; font: 600 30px Inter; letter-spacing: .2em; color: #97fce4; }
+  #end .fine { position: absolute; left: 0; right: 0; bottom: 42px; text-align: center; font: 400 17px Inter; color: #4d6a65; }
+  #grain { opacity: .05; mix-blend-mode: overlay; }
+  #fade { opacity: 0; }
+</style>
+<script>window.READY = false; window.DURATION = 38</script>
+<script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/" } }</script>
+</head><body>
+<div class="ov full" id="dark5" style="opacity:0"></div>
+<div class="ov full" id="light" style="opacity:0"></div>
+<canvas id="gl" width="1920" height="1080"></canvas>
+<div class="ov full" id="glow" style="opacity:0"></div>
+<div class="ov" id="circle" style="opacity:0"></div>
+<div class="ov full" id="flash"></div>
+<div class="ov full" id="arcs" style="opacity:0"><svg viewBox="0 0 1920 1080"><path d="M-100 330 Q 960 120 2020 330" stroke="rgba(151,252,228,.22)" stroke-width="2" fill="none"/><path d="M-100 760 Q 960 980 2020 760" stroke="rgba(151,252,228,.22)" stroke-width="2" fill="none"/><circle id="dot1" r="7" fill="#97fce4"/><circle id="dot2" r="7" fill="#97fce4"/></svg></div>
+
+<!-- type -->
+<div class="ov words" id="w_x" style="top:850px;font:500 34px Inter;color:#7fa9a0"><span>pump.fun</span><span>×</span><span>Hyperliquid</span></div>
+<div class="ov words" id="w_intro" style="top:388px;font:500 40px Inter;color:#d8fff5"><span>Introducing</span></div>
+<div class="ov words serif" id="w_title" style="top:420px;font-size:250px;line-height:1;color:#fff"><span>Hyperlist</span></div>
+<div class="ov words" id="w_launch" style="top:440px;font:600 150px Inter;letter-spacing:-.04em;color:#fff"><span>launch</span></div>
+<div class="ov words" id="w_launch2" style="top:610px;font:500 40px Inter;color:#d8fff5"><span>on</span><span>pump.fun</span></div>
+<div class="ov words" id="w_land" style="top:440px;font:600 150px Inter;letter-spacing:-.04em;color:#fff"><span>land</span></div>
+<div class="ov words" id="w_land2" style="top:610px;font:500 40px Inter;color:#d8fff5"><span>on</span><span>Hyperliquid</span></div>
+<div class="ov words" id="w_flow" style="top:150px;font:600 76px Inter;letter-spacing:-.035em;color:#0b2a24"><span>One</span><span>flow.</span><span style="color:#2fae95">Both</span><span style="color:#2fae95">chains.</span></div>
+<div class="ov words" id="w_pct" style="top:250px;font:600 400px/1 Inter;letter-spacing:-.05em;color:#97fce4"><span id="zero">0</span><span style="margin-left:-.26em">.30%</span></div>
+<div class="ov words" id="w_pct2" style="top:760px;font:500 50px Inter;color:#b9e9de"><span>of</span><span>every</span><span>pump.fun</span><span>trade</span><span>goes</span><span>to</span><span>the</span><span>creator</span></div>
+<div class="ov words" id="w_meter" style="top:70px;font:600 66px Inter;letter-spacing:-.03em;color:#fff"><span>Fees</span><span>fill</span><span>the</span><span>meter</span></div>
+<div class="ov words" id="w_meter2" style="top:960px;font:500 36px Inter;color:#9fc7be"><span>toward</span><span>a</span><span>ticker</span><span>on</span><span>Hyperliquid's</span><span>order</span><span>book</span></div>
+<div class="ov words" id="w_twin" style="top:90px;font:600 70px Inter;letter-spacing:-.03em;color:#fff"><span>The</span><span class="serif" style="font-size:1.25em;line-height:.8">twin,</span><span>on</span><span>HyperEVM</span></div>
+<div class="ov words" id="w_from" style="top:400px;font:600 120px Inter;letter-spacing:-.04em;color:#8fb3ab"><span>From</span><span>pump.fun</span></div>
+<div class="ov words" id="w_to" style="top:540px;font:600 120px Inter;letter-spacing:-.04em;color:#0b2a24"><span>to</span><span>Hyperliquid</span></div>
+
+<!-- the launcher -->
+<div class="ov" id="card" style="opacity:0"><div class="lc">
+  <div class="lf"><div class="pic"><img id="cpic" src="../art/out/hlist_coin.png" alt=""></div>
+    <div class="fl"><div class="two"><label>Name<div class="in" id="iName"><b></b></div></label><label>Ticker<div class="in" id="iSym"><b></b></div></label></div>
+      <label>Description<div class="in" style="height:86px;align-items:flex-start;padding-top:14px;color:#a8c2bd">Launch on pump.fun. Land on Hyperliquid.</div></label>
+      <div class="two"><label>X link<div class="in" style="color:#6f8d88">x.com/…</div></label><label>Your buy at launch<div class="in">0</div></label></div></div></div>
+  <div class="side">
+    <div class="wal"><div class="wb"><img src="../assets/platforms/pumpfun.png" alt=""><div>Solana<small>connected</small></div></div><div class="wb"><img src="../assets/platforms/hyperliquid.png" alt=""><div>HyperEVM<small>connected</small></div></div></div>
+    <div class="st" id="s1"><span class="dot"></span>Picture and details saved</div>
+    <div class="st" id="s2"><span class="dot"></span>Live on pump.fun</div>
+    <div class="st" id="s3"><span class="dot"></span>Twin deployed on HyperEVM</div>
+    <div class="st" id="s4"><span class="dot"></span>Linked by your Solana signature</div>
+    <div class="go" id="go">Launch on both</div>
+  </div></div></div>
+<svg class="ov" id="cursor" viewBox="0 0 24 24" style="opacity:0"><path d="M4 2.5l15 8.2-6.6 1.6-3.2 6.4z" fill="#fff" stroke="#0b2a24" stroke-width="1.6" stroke-linejoin="round"/></svg>
+
+<!-- the meter -->
+<div class="ov" id="dial" style="opacity:0"><svg viewBox="0 0 300 300" width="564" height="564"><circle cx="150" cy="150" r="136" fill="none" stroke="#10221e" stroke-width="7"/><circle id="arc" cx="150" cy="150" r="136" fill="none" stroke="#97fce4" stroke-width="7" stroke-linecap="round" stroke-dasharray="854.5" stroke-dashoffset="854.5" style="filter:drop-shadow(0 0 8px rgba(151,252,228,.7))"/></svg>
+  <div class="in2"><small>HIP-1 ticker price</small><div class="num"><span id="gas">1000.00</span><b>HYPE</b></div><div class="usd" id="gasUsd">$94,980</div></div></div>
+
+<!-- the twin's facts -->
+<div class="ov full" id="chips" style="opacity:0">
+  <div class="chip" id="c1" style="left:170px;top:330px"><b>same</b> name and ticker</div>
+  <div class="chip" id="c2" style="left:1290px;top:300px"><b>1B</b> supply, 6 decimals</div>
+  <div class="chip" id="c3" style="left:200px;top:690px"><b>no</b> mint, pause or admin keys</div>
+  <div class="chip" id="c4" style="left:1200px;top:720px">holders claim from <b>one snapshot</b></div>
+</div>
+
+<!-- icons -->
+<div class="ov full" id="icons" style="opacity:0">
+  <img class="icon" src="../assets/platforms/pumpfun.png" data-p="230,190,1.0" alt="">
+  <img class="icon" src="../assets/platforms/axiom.png" data-p="520,120,0.8" alt="">
+  <img class="icon" src="../assets/platforms/hyperliquid.png" data-p="1520,170,1.1" alt="">
+  <img class="icon" src="../assets/platforms/gmgn.png" data-p="1700,520,0.85" alt="">
+  <img class="icon" src="../assets/platforms/fomo.png" data-p="160,620,0.9" alt="">
+  <img class="icon" src="../assets/platforms/terminal.png" data-p="1380,830,0.8" alt="">
+  <img class="icon" src="../assets/platforms/hyperliquid.png" data-p="560,860,0.75" alt="">
+  <img class="icon" src="../art/out/hlist_coin.png" data-p="960,860,0.95" alt="" style="border-radius:50%">
+</div>
+
+<!-- end -->
+<div class="ov full" id="end" style="opacity:0">
+  <div class="mark" id="eMark"><svg viewBox="0 0 32 32"><rect width="32" height="32" rx="9" fill="#97fce4"/><path d="M9 10.5h14M9 16h10M9 21.5h6" stroke="#03201a" stroke-width="2.6" stroke-linecap="round"/><circle cx="23" cy="21.5" r="2.2" fill="#03201a"/></svg>HYPERLIST</div>
+  <div class="tag" id="eTag">Launch on pump.fun. Land on Hyperliquid.</div>
+  <div class="tkr" id="eTkr">$HYPERLIST</div>
+  <div class="fine" id="eFine">Independent. Not affiliated with, sponsored or endorsed by pump.fun or Hyperliquid.</div>
+</div>
+<div class="ov full" id="grain"></div>
+<div class="ov full" id="fade"></div>
+
+<script type="module">
+import * as THREE from 'three'
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js'
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js'
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js'
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js'
+import { LineSegments2 } from 'three/addons/lines/LineSegments2.js'
+import { LineSegmentsGeometry } from 'three/addons/lines/LineSegmentsGeometry.js'
+import { LineMaterial } from 'three/addons/lines/LineMaterial.js'
+
+const $ = (id) => document.getElementById(id)
+const seg = (t, a, b) => Math.max(0, Math.min(1, (t - a) / (b - a)))
+const lerp = (a, b, x) => a + (b - a) * x
+const eOut = (x) => 1 - Math.pow(1 - x, 3), eIO = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2)
+const eBack = (x) => { const c1 = 1.6, c3 = c1 + 1; return x <= 0 ? 0 : x >= 1 ? 1 : 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2) }
+const win = (t, a, b, fi = 0.3, fo = 0.3) => seg(t, a, a + fi) * (1 - seg(t, b - fo, b))
+
+// ---------------- renderer
+const renderer = new THREE.WebGLRenderer({ canvas: $('gl'), antialias: true, alpha: true, preserveDrawingBuffer: true })
+renderer.setSize(1920, 1080, false); renderer.setPixelRatio(1); renderer.setClearColor(0x000000, 0)
+renderer.toneMapping = THREE.NeutralToneMapping; renderer.toneMappingExposure = 0.95
+const scene = new THREE.Scene()
+const pmrem = new THREE.PMREMGenerator(renderer); scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.03).texture; scene.environmentIntensity = 0.55
+const camera = new THREE.PerspectiveCamera(32, 1920 / 1080, 0.05, 300); camera.position.set(0, 0, 10)
+const key = new THREE.DirectionalLight('#ffffff', 2.4); key.position.set(-4, 5, 6); scene.add(key)
+const rim = new THREE.DirectionalLight('#a8fff0', 2.0); rim.position.set(5, 2, -4); scene.add(rim)
+scene.add(new THREE.AmbientLight('#cffff3', 0.35))
+const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(1920, 1080, { type: THREE.HalfFloatType, samples: 4 }))
+composer.addPass(new RenderPass(scene, camera))
+const bloom = { strength: 0 }                     // no bloom pass: it greys the transparent canvas over the light scenes
+composer.addPass(new OutputPass())
+
+// ---------------- objects
+const phys = (c, o = {}) => new THREE.MeshPhysicalMaterial({ color: c, roughness: 0.26, clearcoat: 1, clearcoatRoughness: 0.08, ...o })
+// the pump.fun pill: two lathed half capsules, green and white, with a dark seam
+function pill() {
+  const g = new THREE.Group(), r = 0.42, L = 0.62, pts = []
+  for (let i = 0; i <= 24; i++) { const a = (i / 24) * Math.PI / 2; pts.push(new THREE.Vector2(Math.cos(a) * r, L / 2 + Math.sin(a) * r)) }
+  pts.unshift(new THREE.Vector2(r, 0))
+  const half = new THREE.LatheGeometry(pts, 64)
+  const w = new THREE.Mesh(half, phys('#f4f6f5')); const gr = new THREE.Mesh(half, phys('#4ecb72')); gr.rotation.z = Math.PI
+  const seam = new THREE.Mesh(new THREE.TorusGeometry(r, 0.022, 12, 96), phys('#1d3a2a')); seam.rotation.x = Math.PI / 2
+  g.add(w, gr, seam); g.rotation.z = -Math.PI / 4
+  const o = new THREE.Group(); o.add(g); return o
+}
+// Hyperliquid's mark, extruded (outline traced from its own app icon)
+async function blob() {
+  const pts = await fetch('assets/hl_shape.json').then((r) => r.json())
+  const sh = new THREE.Shape(pts.map(([x, y]) => new THREE.Vector2(x * 0.95, y * 0.95)))
+  const geo = new THREE.ExtrudeGeometry(sh, { depth: 0.3, bevelEnabled: true, bevelThickness: 0.1, bevelSize: 0.07, bevelSegments: 10, curveSegments: 4 }); geo.center()
+  const m = new THREE.Mesh(geo, phys('#97fce4', { roughness: 0.2 })); const o = new THREE.Group(); o.add(m); return o
+}
+// the coin (the same Blender model as the ticker image) and its twin in inverted colours
+const gltf = await new GLTFLoader().loadAsync('assets/coin.glb')
+function coin(twin) {
+  const s = gltf.scene.clone(true); const o = new THREE.Group(); s.rotation.x = Math.PI / 2; o.add(s)
+  s.traverse((m) => { if (!m.isMesh) return; m.material = m.material.clone(); const n = m.material.name
+    if (twin) { if (n === 'face') m.material.color.set('#0d3a31'); if (n === 'edge') m.material.color.set('#0a2b24'); if (n === 'rim') m.material.color.set('#3fd6b4'); if (n === 'ink') { m.material.color.set('#97fce4'); m.material.emissive = new THREE.Color('#2a8f7b'); m.material.emissiveIntensity = 0.4 } } })
+  return o
+}
+const A = coin(false), B = coin(true), PILL = pill(), BLOB = await blob()
+scene.add(A, B, PILL, BLOB)
+// small coins that flow into the meter
+const flow = Array.from({ length: 10 }, () => { const c = coin(false); c.scale.setScalar(0.22); scene.add(c); return c })
+// the tunnel: a square grid tube receding into fog
+const tunnel = (() => {
+  const P = [], h = 4.2, step = 1.4, z0 = 6, z1 = -90
+  for (let z = z0; z >= z1; z -= step) { const q = [[-h, -h], [h, -h], [h, h], [-h, h]]; for (let i = 0; i < 4; i++) { const a = q[i], b = q[(i + 1) % 4]; P.push(a[0], a[1], z, b[0], b[1], z) } }
+  for (let k = 0; k <= 6; k++) { const u = -h + (2 * h * k) / 6; for (const [x, y] of [[u, -h], [u, h], [-h, u], [h, u]]) P.push(x, y, z0, x, y, z1) }
+  const g = new LineSegmentsGeometry().setPositions(P)
+  const m = new LineMaterial({ color: '#bffff0', linewidth: 2.2, transparent: true, opacity: 0.85, worldUnits: false }); m.resolution.set(1920, 1080)
+  m.fog = true; const l = new LineSegments2(g, m); scene.add(l); return l
+})()
+const all = [A, B, PILL, BLOB, tunnel, ...flow]
+const show = (...objs) => { all.forEach((o) => (o.visible = objs.includes(o))); $('gl').style.visibility = objs.length ? 'visible' : 'hidden' }
+
+// ---------------- type: words blur in one by one
+function words(id, t0, t, out, gap = 0.09) {
+  const el = $(id), sp = [...el.children], fo = seg(t, out, out + 0.35)
+  el.style.opacity = t < t0 - 0.05 || t > out + 0.4 ? 0 : 1
+  sp.forEach((s, i) => { const p = eOut(seg(t, t0 + i * gap, t0 + i * gap + 0.55)); s.style.opacity = p * (1 - fo); s.style.filter = `blur(${(1 - p) * 16 + fo * 12}px)`; s.style.transform = `translateY(${(1 - p) * 22}px) scale(${1 + fo * 0.08})` })
+}
+const op = (id, v) => ($(id).style.opacity = Math.max(0, Math.min(1, v)))
+const type = (id, text, t, a, b) => { const n = Math.round(text.length * seg(t, a, b)); $(id).querySelector('b').textContent = text.slice(0, n); $(id).classList.toggle('on', t > a - 0.3 && t < b + 0.4); const c = $(id).querySelector('i'); if (t > a - 0.3 && t < b + 0.4) { if (!c) $(id).insertAdjacentHTML('beforeend', '<i></i>') } else c?.remove() }
+// the screen point of a DOM element's centre -> a world point at depth z (for the coin in the "0")
+const toWorld = (sx, sy, z = 0) => { const v = new THREE.Vector3((sx / 1920) * 2 - 1, -(sy / 1080) * 2 + 1, 0.5).unproject(camera); const d = v.sub(camera.position).normalize(); return camera.position.clone().add(d.multiplyScalar((z - camera.position.z) / d.z)) }
+
+const SCN = { bg: new THREE.Color() }
+window.renderFrame = (t) => {
+  camera.position.set(0, 0, 10); camera.rotation.set(0, 0, 0); camera.fov = 32; camera.updateProjectionMatrix()
+  scene.fog = null; bloom.strength = 0.18
+  let fadeCol = '#000', fade = 0, bg = '#000'
+
+  // 1. black: the pill and Hyperliquid's mark meet and become the coin (0 - 3.6)
+  if (t < 3.6) {
+    bg = '#020806'; show(PILL, BLOB, A)
+    const inn = eOut(seg(t, 0.1, 1.6)), rush = eIO(seg(t, 1.9, 2.45)), pop = eBack(seg(t, 2.4, 3.0))
+    PILL.position.set(lerp(-6, -1.35, inn) * (1 - rush), 0.15 * Math.sin(t * 2), 0); PILL.rotation.set(0.3, t * 2.2, 0); PILL.scale.setScalar(Math.max(0.001, 1 - rush))
+    BLOB.position.set(lerp(6, 1.35, inn) * (1 - rush), -0.15 * Math.sin(t * 2), 0); BLOB.rotation.set(-0.2, -t * 2.0, 0.2 * Math.sin(t)); BLOB.scale.setScalar(Math.max(0.001, 1 - rush))
+    A.position.set(0, 0, 0); A.scale.setScalar(Math.max(0.001, pop * 1.05)); A.rotation.set(0.12, (1 - pop) * 6 + 0.35 * Math.sin(t * 1.3) - 0.3, 0)
+    op('glow', seg(t, 0, 1.2) * (1 - seg(t, 3.3, 3.6))); op('circle', seg(t, 0.2, 1.5) * (1 - seg(t, 3.3, 3.6)))
+    $('flash').style.opacity = Math.max(0, 1 - Math.abs(t - 2.45) / 0.22) * 0.9
+    words('w_x', 0.5, t, 2.1)
+    fade = 1 - seg(t, 0, 0.35)
+  }
+  // 2. "Introducing Hyperlist" on deep teal with arcs (3.6 - 6.8)
+  else if (t < 6.8) {
+    bg = '#0b2621'; show(A)
+    const away = eIO(seg(t, 3.6, 4.1)); A.position.set(0, 0, lerp(0, 9.6, away)); A.rotation.set(0.12, t * 2, 0); A.visible = away < 0.99
+    op('arcs', seg(t, 3.7, 4.2) * (1 - seg(t, 6.5, 6.8)))
+    const k = (t - 3.6) / 3.2; $('dot1').setAttribute('cx', 300 + 1300 * k); $('dot1').setAttribute('cy', 330 - 178 * Math.sin(Math.PI * (0.25 + 0.68 * k)) + 0)
+    $('dot2').setAttribute('cx', 1620 - 1300 * k); $('dot2').setAttribute('cy', 760 + 178 * Math.sin(Math.PI * (0.25 + 0.68 * k)))
+    words('w_intro', 4.1, t, 6.35); words('w_title', 4.35, t, 6.35)
+    fadeCol = '#0b2621'; fade = 1 - seg(t, 3.6, 3.75)
+  }
+  // 3. the tunnel: coins orbit the words (6.8 - 12.4)
+  else if (t < 12.4) {
+    bg = '#0f3b33'; show(tunnel, A, B, PILL, BLOB)
+    scene.fog = new THREE.Fog('#0f3b33', 6, 34); bloom.strength = 0.12
+    camera.position.set(0, 0, 10 - (t - 6.8) * 1.6); camera.rotation.z = Math.sin((t - 6.8) * 0.5) * 0.08
+    const cz = camera.position.z - 9.5, swap = eIO(seg(t, 9.4, 9.9))
+    const orbit = (o, i, n, r, big) => { const a = (t - 6.8) * 0.55 + (i / n) * Math.PI * 2; o.position.set(Math.cos(a) * r * 1.55, Math.sin(a) * r, cz + Math.sin(a * 2) * 0.6); o.rotation.set(0.25, a * 1.3 + t, 0.1); o.scale.setScalar(big) }
+    orbit(PILL, 0, 4, 2.55, lerp(1.25, 0.75, swap)); orbit(A, 1, 4, 2.55, lerp(0.95, 0.75, swap)); orbit(BLOB, 2, 4, 2.55, lerp(0.75, 1.15, swap)); orbit(B, 3, 4, 2.55, lerp(0.75, 0.95, swap))
+    words('w_launch', 7.1, t, 9.35); words('w_launch2', 7.35, t, 9.35)
+    words('w_land', 9.75, t, 12.0); words('w_land2', 10.0, t, 12.0)
+    fadeCol = '#0f3b33'; fade = 1 - seg(t, 6.8, 7.05)
+  }
+  // 4. the launcher, on light (12.4 - 18.4)
+  else if (t < 18.4) {
+    bg = 'transparent'; show(); op('light', 1)
+    words('w_flow', 12.65, t, 18.0)
+    const rise = eOut(seg(t, 12.6, 13.3)), out = seg(t, 18.0, 18.4)
+    $('card').style.opacity = rise * (1 - out); $('card').style.transform = `translateX(-50%) translateY(${(1 - rise) * 80}px) scale(${lerp(1.2, 1.25, rise)}) perspective(2200px) rotateX(${lerp(14, 4, eIO(seg(t, 12.6, 18)))}deg)`
+    $('card').style.top = '300px'
+    type('iName', 'HyperList', t, 13.2, 13.85); type('iSym', 'HYPERLIST', t, 14.0, 14.55)
+    $('cpic').style.opacity = seg(t, 13.0, 13.25)
+    // the cursor: from the ticker to the button, a press
+    const cur = $('cursor'), p = eIO(seg(t, 14.45, 15.0)), press = t > 15.0 && t < 15.15
+    op('cursor', seg(t, 13.9, 14.1) * (1 - seg(t, 15.6, 15.8)))
+    cur.style.transform = `translate(${lerp(870, 1385, p)}px, ${lerp(400, 772, p)}px) scale(${press ? 0.85 : 1})`
+    $('go').style.transform = press ? 'scale(.97)' : ''; $('go').style.background = t > 15.0 && t < 15.3 ? '#c9fff2' : ''
+    const at = [15.3, 15.9, 16.6, 17.25]
+    ;['s1', 's2', 's3', 's4'].forEach((id, i) => { const el = $(id); el.className = 'st' + (t > at[i] + 0.5 ? ' ok' : t > at[i] ? ' run' : ''); el.querySelector('.dot').style.transform = t > at[i] && t < at[i] + 0.5 ? `rotate(${t * 720}deg)` : '' })
+    $('go').textContent = t > 17.8 ? 'Live on both chains' : 'Launch on both'
+    fadeCol = '#ffffff'; fade = 1 - seg(t, 12.4, 12.62)
+  }
+  // 5. 0.30 %: the coin rolls into the zero (18.4 - 22.6)
+  else if (t < 22.6) {
+    bg = 'transparent'; show(A); op('dark5', 1); op('light', 0)
+    words('w_pct', 18.55, t, 22.25, 0.12); words('w_pct2', 19.6, t, 22.25, 0.05)
+    const r = $('zero').getBoundingClientRect(), w = toWorld(r.left + r.width / 2, r.top + r.height * 0.5, 0)
+    const roll = eOut(seg(t, 18.7, 19.5))
+    A.position.set(lerp(w.x - 9, w.x, roll), w.y, 0.4); A.rotation.set(0, lerp(-9, 0, roll) + 0.18 * Math.sin((t - 19.5) * 1.8) * seg(t, 19.5, 20), lerp(5, 0, roll))
+    A.scale.setScalar(0.9)
+    $('zero').style.color = t > 19.3 ? 'transparent' : ''
+    fadeCol = '#0b2621'; fade = 1 - seg(t, 18.4, 18.6)
+  }
+  // 6. the meter: coins flow into the HIP-1 dial (22.6 - 27.2)
+  else if (t < 27.2) {
+    bg = '#04110e'; show(...flow)
+    op('dial', seg(t, 22.7, 23.1) * (1 - seg(t, 26.9, 27.2))); $('dial').style.transform = `scale(${lerp(0.92, 1, eOut(seg(t, 22.7, 23.3)))})`
+    const g = lerp(1000, 503.8, eIO(seg(t, 23.0, 26.4)))
+    $('gas').textContent = g.toFixed(2); $('gasUsd').textContent = '$' + Math.round(g * 94.75).toLocaleString('en-US')
+    $('arc').setAttribute('stroke-dashoffset', String(854.5 * (1 - 0.98 * eIO(seg(t, 23.0, 26.4)))))
+    flow.forEach((c, i) => { const s0 = 23.0 + i * 0.32, p = seg(t, s0, s0 + 1.3), side = i % 2 ? 1 : -1
+      const x = lerp(side * 7.5, side * 1.7, eIO(p)), y = lerp((i % 3 - 1) * 2.6, 0, eIO(p)) + Math.sin(p * Math.PI) * 0.6 * side
+      c.position.set(x, y, lerp(0.5, -0.6, p)); c.rotation.set(0.3, t * 3 + i, 0); c.scale.setScalar(0.24 * (1 - seg(p, 0.85, 1)) + 0.0001); c.visible = p > 0 && p < 1 })
+    words('w_meter', 22.9, t, 26.85); words('w_meter2', 23.5, t, 26.85, 0.05)
+    fadeCol = '#04110e'; fade = 1 - seg(t, 22.6, 22.8)
+  }
+  // 7. the twin and its facts (27.2 - 31.0)
+  else if (t < 31.0) {
+    bg = '#0b2621'; show(B); op('dark5', 0)
+    const pop = eBack(seg(t, 27.3, 27.9)); B.position.set(0, -0.25, 0); B.scale.setScalar(Math.max(0.001, pop * 1.25)); B.rotation.set(0.15 + 0.06 * Math.sin(t * 1.3), -0.5 + 0.45 * Math.sin((t - 27.2) * 0.9), 0)
+    op('chips', 1); ['c1', 'c2', 'c3', 'c4'].forEach((id, i) => { const p = eOut(seg(t, 27.9 + i * 0.3, 28.4 + i * 0.3)), o = 1 - seg(t, 30.6, 30.95); $(id).style.opacity = p * o; $(id).style.filter = `blur(${(1 - p) * 10}px)`; $(id).style.transform = `translateY(${(1 - p) * 26 + Math.sin(t * 1.2 + i) * 6}px)` })
+    words('w_twin', 27.4, t, 30.6)
+    fadeCol = '#0b2621'; fade = 1 - seg(t, 27.2, 27.38)
+  }
+  // 8. light: the terminals float round "From pump.fun to Hyperliquid" (31.0 - 34.4)
+  else if (t < 34.4) {
+    bg = 'transparent'; show(); op('light', 1); op('chips', 0)
+    op('icons', 1); [...$('icons').children].forEach((im, i) => { const [x, y, s] = im.dataset.p.split(',').map(Number), p = eBack(seg(t, 31.1 + i * 0.08, 31.6 + i * 0.08)), o = 1 - seg(t, 34.0, 34.35)
+      im.style.opacity = Math.min(1, p) * o; im.style.transform = `translate(${x - 65}px, ${y - 65 + Math.sin(t * 1.1 + i * 1.7) * 14 - (t - 31) * 8}px) scale(${s * Math.max(0.001, p)}) rotate(${Math.sin(t * 0.8 + i) * 5}deg)` })
+    words('w_from', 31.3, t, 34.0); words('w_to', 31.75, t, 34.0)
+    fadeCol = '#ffffff'; fade = 1 - seg(t, 31.0, 31.2)
+  }
+  // 9. the end (34.4 - 38)
+  else {
+    bg = '#020806'; show(A); op('light', 0); op('icons', 0)
+    op('glow', seg(t, 34.5, 35.2)); op('circle', seg(t, 34.6, 35.4))
+    const pop = eBack(seg(t, 34.5, 35.1)); A.position.set(0, 1.25, 0); A.scale.setScalar(Math.max(0.001, pop * 0.82)); A.rotation.set(0.1, (1 - pop) * 5 - 0.35 + 0.3 * Math.sin((t - 34.4) * 0.8), 0)
+    op('end', 1)
+    ;[['eMark', 35.0], ['eTag', 35.4], ['eTkr', 35.75], ['eFine', 36.1]].forEach(([id, t0]) => { const x = eOut(seg(t, t0, t0 + 0.6)); $(id).style.opacity = x; $(id).style.filter = `blur(${(1 - x) * 14}px)`; $(id).style.transform = (id === 'eMark' ? 'translateX(-50%) ' : '') + `translateY(${(1 - x) * 20}px)` })
+    fadeCol = '#020806'; fade = 1 - seg(t, 34.4, 34.6) + seg(t, 37.5, 38)
+  }
+  if (t >= 3.6) { op('glow', t > 34.4 ? $('glow').style.opacity : 0); op('circle', t > 34.4 ? $('circle').style.opacity : 0) }
+  if (t < 3.6 || t >= 6.8) op('arcs', 0)
+  if (t < 12.4 || (t >= 18.4 && t < 31) || t >= 34.4) op('light', 0)
+  if (t < 18.4 || t >= 27.2) op('dark5', 0)
+  if (t < 12.4 || t >= 18.4) { op('card', 0); op('cursor', 0) }
+  if (t < 22.6 || t >= 27.2) op('dial', 0)
+  if (t < 27.2 || t >= 31) op('chips', 0)
+  if (t < 31 || t >= 34.4) op('icons', 0)
+  if (t < 34.4) op('end', 0)
+  ;[['w_x', 0.5, 2.1], ['w_intro', 4.1, 6.35], ['w_title', 4.35, 6.35], ['w_launch', 7.1, 9.35], ['w_launch2', 7.35, 9.35], ['w_land', 9.75, 12], ['w_land2', 10, 12], ['w_flow', 12.65, 18], ['w_pct', 18.55, 22.25], ['w_pct2', 19.6, 22.25], ['w_meter', 22.9, 26.85], ['w_meter2', 23.5, 26.85], ['w_twin', 27.4, 30.6], ['w_from', 31.3, 34], ['w_to', 31.75, 34]]
+    .forEach(([id, a, b]) => { if (t < a - 0.1 || t > b + 0.45) $(id).style.opacity = 0 })
+  document.body.style.background = bg === 'transparent' ? '#000' : bg
+  $('fade').style.background = fadeCol; op('fade', fade)
+  composer.render()
+}
+window.renderFrame(0); window.READY = true
+</script></body></html>

@@ -3,3 +3,11 @@ relay/node_modules/
 relay/.data/
 .vercel/
 *.tmp
+promo/frames120/
+promo/frames120.log
+promo/stills/
+promo/music.wav
+promo/music_preview.mp3
+promo/out/
+promo/fonts/g.css
+art/out/coin_raw.png

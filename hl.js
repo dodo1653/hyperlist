@@ -155,7 +155,7 @@
   }
   $('lFile').onchange = (e) => pick(e.target.files[0])
   const drop = $('lPic'); drop.ondragover = (e) => { e.preventDefault(); drop.classList.add('drag') }; drop.ondragleave = () => drop.classList.remove('drag'); drop.ondrop = (e) => { e.preventDefault(); drop.classList.remove('drag'); pick(e.dataTransfer.files[0]) }
-  $('lSym').oninput = (e) => (e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6))
+  $('lSym').oninput = (e) => (e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 10))
   const wset = (id, a) => { const b = $(id); b.classList.add('on'); b.querySelector('small').textContent = short(a) }
   const lnote = (t, bad) => { $('lNote').textContent = t; $('lNote').classList.toggle('err', !!bad) }
   $('wSol').onclick = async () => { try { sol = await (await LX()).connectSol(); wset('wSol', sol) } catch (e) { lnote(e.message, true) } }

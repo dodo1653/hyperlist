@@ -27,7 +27,7 @@ export function createLaunch({ dir, rpc, coins, binds }) {
   function upload(b) {
     const name = s(b.name, 32), symbol = s(b.symbol, 10).replace(/^\$+/, "").toUpperCase(), description = s(b.description, 600)
     if (!name || !symbol) throw new Error("name and ticker are required")
-    if (!/^[A-Z0-9]{1,6}$/.test(symbol)) throw new Error("tickers here are 1 to 6 letters or digits, so the Hyperliquid ticker can match")
+    if (!/^[A-Z0-9]{1,10}$/.test(symbol)) throw new Error("tickers are 1 to 10 letters or digits")
     const hour = Date.now() - 3600_000
     for (const c of coins.values()) if (c.last > hour && c.symbol && c.symbol.toUpperCase() === symbol) throw new Error(`$${c.symbol} traded on pump.fun in the last hour. pick a ticker that's yours`)
     const origin = /^https:\/\/[a-z0-9.-]{3,80}$/.test(String(b.origin || "")) ? b.origin : "https://hyperlist.vercel.app"

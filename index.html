@@ -14,7 +14,7 @@
 <body>
 <div class="navwrap"><header class="top">
   <a class="word" href="#"><svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9"/><path d="M9 10.5h14M9 16h10M9 21.5h6"/><circle cx="23" cy="21.5" r="2.2"/></svg><span>HYPERLIST</span></a>
-  <nav><a href="#launch">Launch</a><a href="#check">Check a coin</a><a href="#race">The race</a><a href="#how">How it works</a><a href="#hlist">$HLIST</a></nav>
+  <nav><a href="#launch">Launch</a><a href="#check">Check a coin</a><a href="#race">The race</a><a href="#how">How it works</a><a href="#hlist">$HYPERLIST</a></nav>
   <span class="live"><i id="dot"></i><span id="liveTxt">connecting</span></span>
   <span class="ca" id="ca">CA soon</span>
 </header></div>
@@ -53,7 +53,7 @@
     <form class="lform card" id="lf" autocomplete="off">
       <label class="pic" id="lPic"><input type="file" id="lFile" accept="image/png,image/jpeg,image/webp,image/gif" hidden><img id="lPrev" alt="" hidden><span>Drop the coin's picture<small>png, jpg, webp or gif</small></span></label>
       <div class="fields">
-        <div class="two"><label>Name<input id="lName" maxlength="32" placeholder="HyperList"></label><label>Ticker<input id="lSym" maxlength="6" placeholder="HLIST"><small>up to 6, so the Hyperliquid ticker matches</small></label></div>
+        <div class="two"><label>Name<input id="lName" maxlength="32" placeholder="HyperList"></label><label>Ticker<input id="lSym" maxlength="10" placeholder="HYPERLIST"><small>up to 10 (HyperCore order-book tickers are up to 6)</small></label></div>
         <label>Description<textarea id="lDesc" maxlength="600" rows="3" placeholder="what it is, in a line or two"></textarea></label>
         <div class="two"><label>X link<input id="lX" placeholder="https://x.com/…"></label><label>Your buy at launch<input id="lBuy" type="number" min="0" step="0.1" value="0"><small>SOL, 0 for none</small></label></div>
       </div>
@@ -90,14 +90,14 @@
     <div><b>04</b><h3>HyperCore ticker</h3><p>The twin is what HIP-1 links to a ticker on Hyperliquid's order book. The price is the live 31-hour auction; your creator fees fill the meter toward it.</p></div>
   </div>
   <div class="notes">
-    <p><b>Straight answers.</b> The twin is its own token on HyperEVM, claimed from a snapshot, not a live bridge: tokens bought on pump.fun after the snapshot don't follow. The HyperCore ticker takes a real HIP-1 bid in HYPE, placed by the coin's creator (for $HLIST, our fund wallet). Every snapshot is public and the page checks it against the root on chain. Binding is a signed message; HYPERLIST never holds your funds.</p>
+    <p><b>Straight answers.</b> The twin is its own token on HyperEVM, claimed from a snapshot, not a live bridge: tokens bought on pump.fun after the snapshot don't follow. The HyperCore ticker takes a real HIP-1 bid in HYPE, placed by the coin's creator (for $HYPERLIST, our fund wallet). Every snapshot is public and the page checks it against the root on chain. Binding is a signed message; HYPERLIST never holds your funds.</p>
   </div>
 </section>
 
 <section class="sec" id="hlist">
   <div class="hl">
-    <div><h2>$HLIST</h2><p>Our own coin launches here like any other: on pump.fun, with its twin on HyperEVM from the first minute. Its creator fees go to the fund wallet, which bids for the HLIST ticker on HyperCore when the meter is full. Every step is posted with its transaction.</p></div>
-    <div class="hlcard" id="hlCard"><small>fund</small><b>opens at launch</b><span>the contract address goes here the minute it exists</span></div>
+    <div><h2>$HYPERLIST</h2><p>Our own coin launches here like any other: on pump.fun, with its twin on HyperEVM from the first minute. Its creator fees go to the fund wallet, which bids for its ticker on HyperCore when the meter is full (order-book tickers are up to 6 letters there). Every step is posted with its transaction.</p></div>
+    <div class="hlcard" id="hlCard"><img src="assets/coin.jpg" alt="$HYPERLIST"><div><small>$HYPERLIST</small><b>CA soon</b><span>launched here, on pump.fun with its HyperEVM twin</span></div></div>
   </div>
 </section>
 <footer><span>HYPERLIST</span><span>Reads Solana and Hyperliquid in public. Independent; not affiliated with pump.fun or Hyperliquid. Memecoins are extremely risky.</span></footer>
