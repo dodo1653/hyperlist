@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>HYPERLIST · pump.fun fees buy the Hyperliquid listing</title>
+<meta name="description" content="Every pump.fun trade pays the coin's creator 0.30 %. HYPERLIST points those fees at the one thing that lists a token on Hyperliquid: the HIP-1 ticker auction. Live meter, public wallet, holders get the HyperCore twin.">
+<meta property="og:title" content="HYPERLIST · pump.fun fees buy the Hyperliquid listing">
+<meta property="og:description" content="A live meter from a pump.fun coin's creator fees to Hyperliquid's HIP-1 ticker auction. Check any coin.">
+<meta property="og:image" content="assets/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="assets/icon.png">
+<link rel="stylesheet" href="assets/fonts.css">
+<link rel="stylesheet" href="hl.css">
+</head>
+<body>
+<div class="navwrap"><header class="top">
+  <a class="word" href="#"><svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9"/><path d="M9 10.5h14M9 16h10M9 21.5h6"/><circle cx="23" cy="21.5" r="2.2"/></svg><span>HYPERLIST</span></a>
+  <nav><a href="#check">Check a coin</a><a href="#race">The race</a><a href="#how">How it works</a><a href="#hlist">$HLIST</a></nav>
+  <span class="live"><i id="dot"></i><span id="liveTxt">connecting</span></span>
+  <span class="ca" id="ca">CA soon</span>
+</header></div>
+
+<main>
+<section class="hero">
+  <div class="eyebrow"><img src="assets/platforms/pumpfun.png" alt=""><span>pump.fun</span><svg viewBox="0 0 20 8"><path d="M0 4h17M14 1l3 3-3 3"/></svg><img src="assets/platforms/hyperliquid.png" alt=""><span>Hyperliquid</span></div>
+  <h1>Your coin's fees buy<br>its <em>Hyperliquid</em> listing.</h1>
+  <p class="sub">Every pump.fun trade pays the coin's creator 0.30 %. A ticker on Hyperliquid costs one thing: the HIP-1 auction. HYPERLIST puts the two on one live meter, for any coin.</p>
+  <div class="stage" id="stage">
+    <svg class="wires" id="wires" viewBox="0 0 1180 460" preserveAspectRatio="none"></svg>
+    <div class="colhead l"><img src="assets/platforms/pumpfun.png" alt="">pump.fun creator fees · last hour</div>
+    <div class="colhead r">newest tickers on Hyperliquid<img src="assets/platforms/hyperliquid.png" alt=""></div>
+    <div class="col l" id="colL"></div>
+    <div class="col r" id="colR"></div>
+    <div class="dial">
+      <svg viewBox="0 0 300 300" class="ring"><circle cx="150" cy="150" r="136" class="tk"/><circle cx="150" cy="150" r="136" class="pg" id="ringPg"/><g id="ticks"></g></svg>
+      <div class="dialin">
+        <img class="hlmark" src="assets/platforms/hyperliquid.png" alt=""><small>HIP-1 ticker price, live</small>
+        <div class="big"><span id="gas">–</span><b>HYPE</b></div>
+        <div class="usd" id="gasUsd">–</div>
+        <div class="st" id="gasSt">reading the auction</div>
+      </div>
+    </div>
+  </div>
+  <div class="rail"><span class="rl">every trade pays the creator, wherever it's placed</span>
+    <span class="logos"><span class="lg"><img src="assets/platforms/pumpfun.png" alt="">pump.fun</span><span class="lg"><img src="assets/platforms/axiom.png" alt="">Axiom</span><span class="lg"><img src="assets/platforms/gmgn.png" alt="">GMGN</span><span class="lg"><img src="assets/platforms/fomo.png" alt="">Fomo</span><span class="lg"><img src="assets/platforms/terminal.png" alt="">Terminal</span>
+    <svg class="to" viewBox="0 0 28 10"><path d="M0 5h24M20 1l4 4-4 4"/></svg><span class="lg hl"><img src="assets/platforms/hyperliquid.png" alt="">Hyperliquid ticker</span></span></div>
+  <div class="cta"><a class="btn" href="#check">Check your coin</a><a class="btn ghost" href="#race">See the race</a></div>
+  <div class="strip"><span><b id="sFees">–</b> SOL paid to pump.fun creators in the last hour</span><i></i><span><b id="sTrades">–</b> trades read</span><i></i><span><b id="sFloor">–</b> ticker floor</span></div>
+</section>
+
+<section class="sec" id="check">
+  <div class="sh"><h2>Check a coin</h2><p>Paste any pump.fun address. We read its creator's unclaimed fees on Solana and the ticker price on Hyperliquid, right now.</p></div>
+  <form class="search" id="form"><input id="mint" placeholder="pump.fun contract address" spellcheck="false" autocomplete="off"><button class="btn">Check</button></form>
+  <div id="result"></div>
+</section>
+
+<section class="sec" id="race">
+  <div class="sh"><h2>The race to Hyperliquid</h2><p>pump.fun coins ranked by what their creators earned in the last hour, read trade by trade from the program. Unclaimed = the creator's vaults on chain.</p></div>
+  <div class="table"><div class="tr th"><span>#</span><span>coin</span><span>fees, last hour</span><span>unclaimed</span><span>of a ticker</span><span>at this pace</span></div><div id="raceRows"></div></div>
+</section>
+
+<section class="sec" id="how">
+  <div class="sh"><h2>How it works</h2></div>
+  <div class="steps">
+    <div><b>01</b><h3>Fees</h3><p>Every bonding-curve trade on pump.fun pays the coin's creator 0.30 % into a vault on Solana. We read each trade's fee straight from the program logs.</p></div>
+    <div><b>02</b><h3>The meter</h3><p>The vaults on one side, Hyperliquid's HIP-1 auction on the other: a 31-hour Dutch auction that falls to a 500 HYPE floor. Both read live, nothing estimated.</p></div>
+    <div><b>03</b><h3>The bid</h3><p>When a fund covers the price, its wallet bids and deploys the ticker (up to 6 letters) on HyperCore. Every step is posted with its transaction.</p></div>
+    <div><b>04</b><h3>The twin</h3><p>Genesis balances go to holders who bound a Hyperliquid address with their Solana wallet, pro rata to a snapshot of the coin.</p></div>
+  </div>
+  <div class="notes">
+    <p><b>Straight answers.</b> The HyperCore twin is a new HIP-1 token, not a bridge of the Solana coin. Someone has to place the bid: for $HLIST it is our fund wallet, for any other coin it is that coin's creator. Binding an address is a signed message, it moves nothing, and HYPERLIST never holds your funds.</p>
+  </div>
+</section>
+
+<section class="sec" id="hlist">
+  <div class="hl">
+    <div><h2>$HLIST</h2><p>Our coin runs the same meter in public: its creator fees go to the fund wallet, and the fund bids for the HLIST ticker on Hyperliquid. Holders bind their address below, and the twin's genesis follows the snapshot.</p></div>
+    <div class="hlcard" id="hlCard"><small>fund</small><b>opens at launch</b><span>the contract address goes here the minute it exists</span></div>
+  </div>
+</section>
+<footer><span>HYPERLIST</span><span>Reads Solana and Hyperliquid in public. Independent; not affiliated with pump.fun or Hyperliquid. Memecoins are extremely risky.</span></footer>
+</main>
+<div class="toast" id="toast" hidden></div>
+<script src="hl.js"></script>
+</body></html>
