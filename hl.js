@@ -194,7 +194,15 @@
   const wset = (id, a) => { const b = $(id); b.classList.add('on'); b.querySelector('small').textContent = short(a) }
   const lnote = (t, bad) => { $('lNote').textContent = t; $('lNote').classList.toggle('err', !!bad) }
   $('wSol').onclick = async () => { try { const X = await LX(); sol = await X.connectSol(); wset('wSol', sol); hypeHeld = await X.hypeBalance(sol).catch(() => null); buyNote() } catch (e) { lnote(e.message, true) } }
-  $('wEvm').onclick = async () => { try { evm = await (await LX()).connectEvm(); wset('wEvm', evm) } catch (e) { lnote(e.message, true) } }
+  const evmConnect = async (rdns) => { const X = await LX(); evm = await X.connectEvm(rdns); wset('wEvm', evm); $('wEvm').querySelector('small').textContent = X.evmName() + ' · ' + short(evm); $('evmPick').hidden = true; lnote('') }
+  $('wEvm').onclick = async () => {
+    const X = await LX(), list = X.evmChoices()
+    if (list.length > 1) {                                            // several EVM wallets: let the creator choose (Phantom's EVM side refuses Solana-only accounts)
+      $('evmPick').innerHTML = list.map((w) => `<button type="button" data-r="${esc(w.rdns)}">${w.icon ? `<img src="${esc(w.icon)}" alt="">` : ''}${esc(w.name)}${/phantom/i.test(w.rdns) ? '<small>needs a recovery-phrase account</small>' : ''}</button>`).join('')
+      $('evmPick').hidden = false
+      $('evmPick').querySelectorAll('button').forEach((b) => (b.onclick = () => evmConnect(b.dataset.r).catch((e) => lnote(e.message, true))))
+    } else evmConnect().catch((e) => lnote(e.message, true))
+  }
   let pair = 'HYPE', hypeHeld = null
   const buyNote = () => ($('buyNote').textContent = pair === 'HYPE' ? `HYPE, 0 for none${hypeHeld != null ? ' · you hold ' + n(hypeHeld, 3) : ''}` : 'SOL, 0 for none')
   document.querySelectorAll('.pairsel button').forEach((b) => (b.onclick = () => {
@@ -211,13 +219,21 @@
     try {
       const X = await LX()
       if (!sol) { sol = await X.connectSol(); wset('wSol', sol) }
-      if (!evm) { evm = await X.connectEvm(); wset('wEvm', evm) }
       step('meta', 'run')
       const r = await X.launchPump({ name, symbol, description: $('lDesc').value, twitter: $('lX').value, image: pic64, buy: +$('lBuy').value || 0, sol, pair }, (t) => { lnote(t); if (/sign the launch/.test(t)) { step('meta', 'ok'); step(cur = 'pump', 'run') } })
       step('meta', 'ok'); step('pump', 'ok'); step(cur = 'twin', 'run')
-      const twin = await X.deployTwin({ mint: r.mint, name, symbol, image: r.image, evm }, (t) => { lnote(t); if (/sign the link/.test(t)) { step('twin', 'ok'); step(cur = 'link', 'run') } })
+      const pumpLine = `<span>pump.fun <a href="https://pump.fun/coin/${r.mint}" target="_blank" rel="noopener">${r.mint}</a></span>`
+      let twin = null
+      try {
+        if (!evm) { lnote('connect an EVM wallet for the HyperEVM twin'); evm = await X.connectEvm(); wset('wEvm', evm) }
+        twin = await X.deployTwin({ mint: r.mint, name, symbol, image: r.image, evm }, (t) => { lnote(t); if (/sign the link/.test(t)) { step('twin', 'ok'); step(cur = 'link', 'run') } })
+      } catch (e) {                                                       // the coin is live either way; the twin can follow from its page
+        step(cur, 'no'); lnote(`$${symbol} is live on pump.fun. The twin didn't deploy: ${String(e?.message || e).slice(0, 160)}`, true)
+        $('lDone').innerHTML = `<div class="done">${pumpLine}<span><a href="/?c=${r.mint}">Open its page and press "Deploy its twin" when your EVM wallet is ready</a></span></div>`
+        launched(); go.disabled = false; return
+      }
       step('twin', 'ok'); step('link', 'ok'); lnote(`$${symbol} is live on both chains.`)
-      $('lDone').innerHTML = `<div class="done"><span>pump.fun <a href="https://pump.fun/coin/${r.mint}" target="_blank" rel="noopener">${r.mint}</a></span><span>HyperEVM <a href="https://hyperevmscan.io/address/${twin}" target="_blank" rel="noopener">${twin}</a></span><span><a href="/?c=${r.mint}">Open its page: binds, snapshot, claims, ticker meter</a></span></div>`
+      $('lDone').innerHTML = `<div class="done">${pumpLine}<span>HyperEVM <a href="https://hyperevmscan.io/address/${twin}" target="_blank" rel="noopener">${twin}</a></span><span><a href="/?c=${r.mint}">Open its page: binds, snapshot, claims, ticker meter</a></span></div>`
       launched()
     } catch (e) { step(cur, 'no'); lnote(String(e?.message || e).slice(0, 240), true) }
     go.disabled = false

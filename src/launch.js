@@ -22,17 +22,36 @@ export async function connectSol() {
 }
 async function signText(text) { const w = solWallet(); const out = await w.signMessage(new TextEncoder().encode(text), 'utf8'); return b58(out.signature || out) }
 const HYPEREVM = { chainId: '0x3e7', chainName: 'HyperEVM', nativeCurrency: { name: 'HYPE', symbol: 'HYPE', decimals: 18 }, rpcUrls: ['https://rpc.hyperliquid.xyz/evm'], blockExplorerUrls: ['https://hyperevmscan.io'] }
-export async function connectEvm() {
-  const e = window.ethereum; if (!e) throw new Error('no EVM wallet found (Rabby, MetaMask…)')
-  const [a] = await e.request({ method: 'eth_requestAccounts' })
+// EVM wallets announce themselves (EIP-6963); several can be installed at once. Phantom's EVM side refuses accounts
+// that are Solana-only, so a dedicated EVM wallet (Rabby, MetaMask, ...) is preferred when there is one.
+const evmWallets = []
+addEventListener('eip6963:announceProvider', (e) => { if (!evmWallets.some((w) => w.info.uuid === e.detail.info.uuid)) evmWallets.push(e.detail) })
+dispatchEvent(new Event('eip6963:requestProvider'))
+let EVM = null, EVM_NAME = ''
+export const evmChoices = () => evmWallets.map((w) => ({ name: w.info.name, rdns: w.info.rdns, icon: w.info.icon }))
+function pickEvm(rdns) {
+  if (rdns) { const w = evmWallets.find((x) => x.info.rdns === rdns); if (w) return w }
+  return evmWallets.find((w) => !/phantom/i.test(w.info.rdns + w.info.name)) || evmWallets[0] || (window.ethereum ? { provider: window.ethereum, info: { name: 'browser wallet', rdns: '' } } : null)
+}
+export async function connectEvm(rdns) {
+  const w = pickEvm(rdns); if (!w) throw new Error('no EVM wallet found: install Rabby or MetaMask to deploy the twin on HyperEVM')
+  const e = w.provider
+  let a
+  try { [a] = await e.request({ method: 'eth_requestAccounts' }) }
+  catch (x) {
+    if (/phantom/i.test(w.info.rdns + w.info.name)) throw new Error('Phantom refused: this Phantom account is Solana-only. Use Rabby or MetaMask for the HyperEVM step, or a Phantom account made from a recovery phrase')
+    throw new Error((x && x.message) || 'the EVM wallet refused')
+  }
   if ((await e.request({ method: 'eth_chainId' })) !== HYPEREVM.chainId) {
     try { await e.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: HYPEREVM.chainId }] }) }
     catch (x) { if (x.code === 4902 || /unrecognized|not added/i.test(x.message || '')) await e.request({ method: 'wallet_addEthereumChain', params: [HYPEREVM] }); else throw x }
   }
+  EVM = e; EVM_NAME = w.info.name
   return a.toLowerCase()
 }
+export const evmName = () => EVM_NAME
 async function evmSend(from, tx, note) {
-  const e = window.ethereum
+  const e = EVM || window.ethereum
   const hash = await e.request({ method: 'eth_sendTransaction', params: [{ from, ...tx }] })
   note?.('waiting for HyperEVM…')
   for (let i = 0; i < 90; i++) {
@@ -119,4 +138,4 @@ export async function claim({ mint, twin, evm }, note) {
 }
 // dry run: build + simulate a launch for any wallet address, nothing uploaded, nothing signed
 export const dryRun = async (sol, buy, pair = 'HYPE') => { await buildLaunch({ user: new PublicKey(sol), mint: Keypair.generate().publicKey, name: 'Dry Run', symbol: 'DRY', uri: 'https://example.com/m.json', buy, pair }); return 'ok' }
-window.HLX = { connectSol, connectEvm, hypeBalance, dryRun, launchPump, deployTwin, takeSnapshot, postRoot, claim }
+window.HLX = { connectSol, connectEvm, evmChoices, evmName, hypeBalance, dryRun, launchPump, deployTwin, takeSnapshot, postRoot, claim }
