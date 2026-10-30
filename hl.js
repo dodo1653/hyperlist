@@ -50,7 +50,8 @@
     right.forEach((_, i) => { const y2 = 30 + TOPS[i] + 38, y1 = cy - 54 + i * 36, x1 = 590 + Math.sqrt(160 ** 2 - (y1 - cy) ** 2); s += w(x1, y1, 880, y2, 'base', i) + w(x1, y1, 880, y2, 'r flow', i) })
     $('wires').innerHTML = s
   }
-  const upL = (c) => `<b>$${esc(c.symbol)}</b><small>${c.trades1h} trades · ${n(c.vol1h, 1)} SOL volume</small>`
+  const U = (c) => c.unit || 'SOL'
+  const upL = (c) => `<b>$${esc(c.symbol)}</b><small>${c.trades1h} trades · ${n(c.vol1h, 1)} ${U(c)} volume</small>`
   const upR = (t) => `<b>${esc(t.name)}</b><small>${t.at ? 'listed ' + ago(Date.now() - t.at) + ' ago' : 'spot token #' + t.index}</small>`
   function fit() { const el = $('stage'); if (innerWidth < 700) { el.style.transform = ''; el.style.marginBottom = ''; return } const k = Math.min(1, (innerWidth - 24) / 1180); el.style.transform = `scale(${k})`; el.style.marginBottom = -460 * (1 - k) + 6 + 'px' }
   addEventListener('resize', fit); fit()
@@ -59,7 +60,7 @@
   function race() {
     const tgt = S.ticker.sol
     $('raceRows').innerHTML = S.race.length ? S.race.map((c, i) => `<div class="tr" data-m="${esc(c.mint)}"><span class="rk">${i + 1}</span><span class="c">${img(c)}<b>$${esc(c.symbol)}</b></span>
-      <span class="f">${n(c.fees1h, 3)} SOL</span><span>${c.unclaimed == null ? '…' : n(c.unclaimed, 3) + ' SOL'}</span>
+      <span class="f">${n(c.fees1h, 3)} ${U(c)}</span><span>${c.unclaimed == null ? '…' : n(c.unclaimed, 3) + ' ' + U(c)}</span>
       <span>${c.pct == null ? '…' : n(c.pct, c.pct < 1 ? 3 : 2) + '%'}<div class="bar"><i style="width:${Math.min(100, c.pct || 0)}%"></i></div></span><span>${pace(c.etaH)}</span></div>`).join('')
       : '<div class="empty">Reading pump.fun… the first trades land in a few seconds.</div>'
     $('raceRows').querySelectorAll('.tr').forEach((r) => (r.onclick = () => { $('mint').value = r.dataset.m; check(r.dataset.m); $('check').scrollIntoView() }))
@@ -83,12 +84,12 @@
     const c = await api('coin', '&mint=' + encodeURIComponent(m)).catch(() => ({ error: 'the relay is offline' }))
     if (c.error) { $('result').innerHTML = `<div class="card"><span class="err">${esc(c.error)}</span></div>`; return }
     history.replaceState(null, '', '?c=' + c.mint)
-    const tgt = c.ticker.sol, pct = c.pct ?? 0
+    const hp = c.unit === 'HYPE', u = hp ? 'HYPE' : 'SOL', tgt = hp ? c.ticker.hype : c.ticker.sol, pct = c.pct ?? 0
     $('result').innerHTML = `<div class="card">
-      <div class="hd">${img(c)}<div><b>$${esc(c.symbol || '?')}</b><small>${esc(c.name)} · creator ${esc(c.creator.slice(0, 4))}…${esc(c.creator.slice(-4))}</small></div><span class="tag">${c.graduated ? 'graduated · PumpSwap' : 'on the bonding curve'}${c.mc ? ' · mcap ' + usd(c.mc) : ''}</span></div>
+      <div class="hd">${img(c)}<div><b>$${esc(c.symbol || '?')}</b><small>${esc(c.name)} · creator ${esc(c.creator.slice(0, 4))}…${esc(c.creator.slice(-4))}</small></div><span class="tag">${hp ? 'HYPE pair · ' : ''}${c.graduated ? 'graduated · PumpSwap' : 'on the bonding curve'}${c.mc ? ' · mcap ' + usd(c.mc) : ''}</span></div>
       <div class="meter"><i style="width:${Math.min(100, pct)}%"></i></div>
-      <div class="ml"><span><b>${n(c.unclaimed, 3)} SOL</b> unclaimed creator fees</span><span>a ticker now: <b>${n(tgt, 0)} SOL</b> (${n(c.ticker.hype, 0)} HYPE, ${usd(c.ticker.usd)})</span></div>
-      <div class="kv"><div><small>of a ticker</small><b>${n(pct, pct < 1 ? 3 : 2)}%</b></div><div><small>fees, last hour</small><b>${n(c.fees1h, 3)} SOL</b></div><div><small>volume, last hour</small><b>${n(c.vol1h, 1)} SOL</b></div><div><small>full at this pace</small><b>${pace(c.etaH)}</b></div></div>
+      <div class="ml"><span><b>${n(c.unclaimed, 3)} ${u}</b> unclaimed creator fees${hp ? ', paid in HYPE' : ''}</span><span>a ticker now: <b>${n(tgt, 0)} ${u}</b> ${hp ? '(the auction is priced in HYPE too, ' + usd(c.ticker.usd) + ')' : '(' + n(c.ticker.hype, 0) + ' HYPE, ' + usd(c.ticker.usd) + ')'}</span></div>
+      <div class="kv"><div><small>of a ticker</small><b>${n(pct, pct < 1 ? 3 : 2)}%</b></div><div><small>fees, last hour</small><b>${n(c.fees1h, 3)} ${u}</b></div><div><small>volume, last hour</small><b>${n(c.vol1h, 1)} ${u}</b></div><div><small>full at this pace</small><b>${pace(c.etaH)}</b></div></div>
       ${chains(c, pct)}
       <div class="act"><button class="btn sm" id="share">Copy this coin's meter link</button><a class="btn ghost sm" target="_blank" rel="noopener" href="https://x.com/intent/post?text=${encodeURIComponent(`$${c.symbol}'s creator fees cover ${n(pct, pct < 1 ? 3 : 2)}% of a Hyperliquid ticker right now.\n\n${location.origin}/?c=${c.mint}`)}">Post it</a><span class="fine">${c.binds} holder${c.binds === 1 ? '' : 's'} bound a Hyperliquid address</span></div>
       <div class="bind"><h4>Hold $${esc(c.symbol)}? Bind your Hyperliquid address.</h4><p>Your Solana wallet signs one message linking it to your Hyperliquid (0x…) address. When the creator takes the snapshot, you claim your exact balance of the twin on HyperEVM. It moves nothing.</p>
@@ -158,8 +159,15 @@
   $('lSym').oninput = (e) => (e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 10))
   const wset = (id, a) => { const b = $(id); b.classList.add('on'); b.querySelector('small').textContent = short(a) }
   const lnote = (t, bad) => { $('lNote').textContent = t; $('lNote').classList.toggle('err', !!bad) }
-  $('wSol').onclick = async () => { try { sol = await (await LX()).connectSol(); wset('wSol', sol) } catch (e) { lnote(e.message, true) } }
+  $('wSol').onclick = async () => { try { const X = await LX(); sol = await X.connectSol(); wset('wSol', sol); hypeHeld = await X.hypeBalance(sol).catch(() => null); buyNote() } catch (e) { lnote(e.message, true) } }
   $('wEvm').onclick = async () => { try { evm = await (await LX()).connectEvm(); wset('wEvm', evm) } catch (e) { lnote(e.message, true) } }
+  let pair = 'HYPE', hypeHeld = null
+  const buyNote = () => ($('buyNote').textContent = pair === 'HYPE' ? `HYPE, 0 for none${hypeHeld != null ? ' · you hold ' + n(hypeHeld, 3) : ''}` : 'SOL, 0 for none')
+  document.querySelectorAll('.pairsel button').forEach((b) => (b.onclick = () => {
+    pair = b.dataset.p; document.querySelectorAll('.pairsel button').forEach((x) => x.classList.toggle('on', x === b))
+    $('pairNote').textContent = pair === 'HYPE' ? 'trades against HYPE on pump.fun; creator fees are paid in HYPE' : 'trades against SOL on pump.fun, like most coins'
+    buyNote()
+  }))
   const step = (k, st) => { const li = $('lSteps').querySelector(`[data-k="${k}"]`); li.className = st || '' }
   $('lGo').onclick = async () => {
     const name = $('lName').value.trim(), symbol = $('lSym').value.trim(), go = $('lGo')
@@ -171,7 +179,7 @@
       if (!sol) { sol = await X.connectSol(); wset('wSol', sol) }
       if (!evm) { evm = await X.connectEvm(); wset('wEvm', evm) }
       step('meta', 'run')
-      const r = await X.launchPump({ name, symbol, description: $('lDesc').value, twitter: $('lX').value, image: pic64, buy: +$('lBuy').value || 0, sol }, (t) => { lnote(t); if (/sign the launch/.test(t)) { step('meta', 'ok'); step(cur = 'pump', 'run') } })
+      const r = await X.launchPump({ name, symbol, description: $('lDesc').value, twitter: $('lX').value, image: pic64, buy: +$('lBuy').value || 0, sol, pair }, (t) => { lnote(t); if (/sign the launch/.test(t)) { step('meta', 'ok'); step(cur = 'pump', 'run') } })
       step('meta', 'ok'); step('pump', 'ok'); step(cur = 'twin', 'run')
       const twin = await X.deployTwin({ mint: r.mint, name, symbol, image: r.image, evm }, (t) => { lnote(t); if (/sign the link/.test(t)) { step('twin', 'ok'); step(cur = 'link', 'run') } })
       step('twin', 'ok'); step('link', 'ok'); lnote(`$${symbol} is live on both chains.`)

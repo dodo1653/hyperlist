@@ -11,6 +11,7 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
+    "@pump-fun/pump-sdk": "^4.1.0",
     "@solana/web3.js": "^3.1.1",
     "buffer": "^6.0.3",
     "esbuild": "^0.28.2",

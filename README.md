@@ -4,7 +4,7 @@ Launch on pump.fun. Land on Hyperliquid.
 
 One flow puts a coin on pump.fun and deploys its twin on HyperEVM (Hyperliquid's EVM), linked by the creator's Solana signature:
 
-1. **pump.fun**: the coin is created from the creator's wallet (PumpPortal builds the transaction, the wallet signs it). Its metadata lives on this site's domain (`/m/<id>.json`, `/i/<id>`).
+1. **pump.fun, paired with HYPE**: the coin is created from the creator's wallet with pump.fun's own SDK (`create_v2` with HYPE `98sMhvDwXj1RQi5c5Mndm3vPe9cBqPrbLaufMXFNMh5g`, a pump.fun listed quote mint, then the creator's `buy_v2` in HYPE), one v0 transaction through a public lookup table, simulated before the wallet signs. SOL pairs work too. Creator fees on a HYPE pair are paid in HYPE, the same token Hyperliquid's ticker auction is priced in. Its metadata lives on this site's domain (`/m/<id>.json`, `/i/<id>`).
 2. **HyperEVM twin**: the creator's EVM wallet deploys `contracts/HyperTwin.sol`: same name and ticker, 1B supply, 6 decimals, the pump.fun mint written into the contract, no mint, pause, fee or admin keys.
 3. **The link**: the coin's Solana creator signs `twin of <mint> is <0x…>`; the relay checks the signature against the bonding curve's creator and reads the contract on HyperEVM before listing it.
 4. **Holders claim**: holders bind an address with their Solana wallet; the creator takes ONE snapshot (signed), posts its root ONCE, and every holder claims their exact balance. The snapshot is public and the page compares it with the root on chain.

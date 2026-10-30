@@ -9,7 +9,8 @@ import fs from "node:fs"
 import path from "node:path"
 import { fileURLToPath } from "node:url"
 import { Buffer } from "node:buffer"
-import { b58, unb58, isKey, verify, makeRpc, curveOf, parseCurve, vaults, tokenMeta, PUMP } from "./sol.js"
+import { b58, unb58, isKey, verify, makeRpc, curveOf, parseCurve, vaults, tokenMeta, tradeQuote, curveQuote, pda, PUMP } from "./sol.js"
+const HYPE = "98sMhvDwXj1RQi5c5Mndm3vPe9cBqPrbLaufMXFNMh5g"     // HYPE on Solana: a pump.fun listed quote mint
 import { createLaunch, twinMsg, snapMsg } from "./launch.js"
 
 const PORT = +(process.env.PORT || 8798)
@@ -60,8 +61,12 @@ function onLogs(logs) {
         const name = s(), symbol = s(), uri = s(), mint = b58(b.subarray(o, o + 32)); o += 96
         const c = coin(mint); Object.assign(c, { name: name.slice(0, 40), symbol: symbol.slice(0, 16), uri: uri.slice(0, 300), creator: b58(b.subarray(o, o + 32)) })
       } else if (d === D_TRADE && b.length >= 225) {
-        const sol = Number(b.readBigUInt64LE(40)) / 1e9; if (!(sol > 0)) continue
-        const c = coin(b58(b.subarray(8, 40))), now = Date.now(), fee = Number(b.readBigUInt64LE(217)) / 1e9
+        // SOL pairs carry the amount in sol_amount; HYPE pairs leave it 0 and carry it (and the creator fee) in HYPE
+        let amt = Number(b.readBigUInt64LE(40)) / 1e9, unit = "SOL"
+        if (!(amt > 0)) { const q = tradeQuote(b); if (!q || q.quoteMint !== HYPE) continue; amt = q.quoteAmount / 1e9; unit = "HYPE" }
+        if (!(amt > 0)) continue
+        const sol = amt, c = coin(b58(b.subarray(8, 40))), now = Date.now(), fee = Number(b.readBigUInt64LE(217)) / 1e9
+        c.unit = unit
         c.creator = b58(b.subarray(177, 209)); c.last = now; trades++
         c.vol.push([now, sol]); if (fee > 0) c.fees.push([now, fee])
       }
@@ -110,14 +115,25 @@ async function ensureMeta(c) {
 let race = []
 async function tickRace() {
   prune()
-  const list = [...coins.values()].filter((c) => c.fees.length && c.creator).map((c) => ({ c, f: sum(c.fees) })).sort((a, b) => b.f - a.f).slice(0, 30)
+  const inSol = (c, v) => (c.unit === "HYPE" && prices.sol ? (v * prices.hype) / prices.sol : v)
+  const list = [...coins.values()].filter((c) => c.fees.length && c.creator).map((c) => ({ c, f: sum(c.fees), r: inSol(c, sum(c.fees)) })).sort((a, b) => b.r - a.r).slice(0, 30)
   for (const { c } of list.slice(0, 14)) if (!(c.img && c.symbol)) await ensureMeta(c)
   const fresh = list.filter(({ c }) => c.symbol && !CRUDE.test(c.symbol + " " + c.name)).slice(0, 14)
   const missing = fresh.map(({ c }) => c.creator).filter((cr) => !vaultOf.has(cr))
   if (missing.length) await refreshVaults(missing).catch(() => {})
   race = fresh.map(({ c, f }) => view(c, f))
 }
+// HYPE-paired coins: the creator vault's HYPE account, 10 per call (public RPC limit)
+async function refreshHypeVaults(list) {
+  const cs = list.filter((c) => c.unit === "HYPE" && c.creator); if (!cs.length) return
+  const atas = cs.map((c) => pda([unb58(pda(["creator-vault", unb58(c.creator)], PUMP)), unb58("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"), unb58(HYPE)], "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"))
+  for (let i = 0; i < atas.length; i += 10) {
+    const r = await rpc("getMultipleAccounts", [atas.slice(i, i + 10), { encoding: "base64", dataSlice: { offset: 64, length: 8 } }])
+    r.value.forEach((a, j) => (cs[i + j].hypeVault = a ? Number(Buffer.from(a.data[0], "base64").readBigUInt64LE(0)) / 1e9 : 0))
+  }
+}
 async function tickVaults() {
+  try { await refreshHypeVaults([...race.map((r) => coins.get(r.mint)).filter(Boolean), ...[...watch].map((m) => coins.get(m)).filter(Boolean)]) } catch (e) { console.log("hype vaults", e.message) }
   try { await refreshVaults([...race.map((r) => r.creator), ...[...watch].map((m) => coins.get(m)?.creator)]) } catch (e) { console.log("vaults", e.message) }
 }
 
@@ -128,9 +144,12 @@ const target = () => {   // the price of a ticker right now: the live auction pr
   if (auction.endGas != null || t >= 1) return FLOOR
   return Math.max(FLOOR, auction.startGas + (FLOOR - auction.startGas) * t)
 }
+// a HYPE-paired coin's creator is paid in HYPE: its vault and fees compare straight with the auction's HYPE price
 function view(c, fees1h = sum(c.fees)) {
-  const v = vaultOf.get(c.creator), unclaimed = v ? v.pump + v.amm : null, tgtSol = prices.sol ? (target() * prices.hype) / prices.sol : 0
-  return { mint: c.mint, symbol: c.symbol, name: c.name, img: c.img, creator: c.creator, fees1h: +fees1h.toFixed(4), vol1h: +sum(c.vol).toFixed(2), trades1h: c.vol.length,
+  const hype = c.unit === "HYPE", v = vaultOf.get(c.creator)
+  const unclaimed = hype ? (c.hypeVault ?? null) : v ? v.pump + v.amm : null
+  const tgtSol = hype ? target() : prices.sol ? (target() * prices.hype) / prices.sol : 0
+  return { unit: c.unit || "SOL", mint: c.mint, symbol: c.symbol, name: c.name, img: c.img, creator: c.creator, fees1h: +fees1h.toFixed(4), vol1h: +sum(c.vol).toFixed(2), trades1h: c.vol.length,
     unclaimed: unclaimed == null ? null : +unclaimed.toFixed(4), vaultAt: v?.at || null, pct: unclaimed == null || !tgtSol ? null : +((unclaimed / tgtSol) * 100).toFixed(3),
     etaH: tgtSol && fees1h > 0 ? +(Math.max(0, tgtSol - (unclaimed || 0)) / fees1h).toFixed(1) : null }
 }
@@ -146,14 +165,22 @@ async function coinPage(mint) {
   if (!isKey(mint)) throw new Error("that is not a Solana address")
   const a = await rpc("getAccountInfo", [curveOf(mint), { encoding: "base64" }])
   if (!a?.value) throw new Error("not a pump.fun coin")
-  const cv = parseCurve(a.value.data[0]), c = coin(mint)
+  const cv = parseCurve(a.value.data[0]), c = coin(mint), quote = curveQuote(a.value.data[0])
   c.creator = c.creator || cv.creator; if (!c.last) c.last = Date.now()
+  if (quote && quote !== HYPE) throw new Error("this coin trades against a token HYPEDUAL doesn't read yet")
+  if (quote === HYPE) {                                        // creator fees sit in the creator vault's HYPE account
+    c.unit = "HYPE"
+    const ata = pda([unb58(pda(["creator-vault", unb58(c.creator)], PUMP)), unb58("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"), unb58(HYPE)], "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL")
+    const va = await rpc("getAccountInfo", [ata, { encoding: "base64", dataSlice: { offset: 64, length: 8 } }])
+    c.hypeVault = va?.value ? Number(Buffer.from(va.value.data[0], "base64").readBigUInt64LE(0)) / 1e9 : 0
+  }
   if (!watch.has(mint)) { watch.add(mint); save("watch.json", [...watch]) }
   await ensureMeta(c)
   if (!vaultOf.has(c.creator) || Date.now() - vaultOf.get(c.creator).at > 30000) await refreshVaults([c.creator])
   const L = launch.get(mint), sp = launch.snap(mint)
   const twin = L ? { address: L.twin, evmCreator: L.evmCreator, at: L.at, root: await launch.onchainRoot(mint), snapshot: sp && { root: sp.root, at: sp.at, holders: sp.holders, total: sp.total } } : null
-  return { ...view(c), twin, graduated: cv.complete, mc: prices.sol ? Math.round((cv.vSol / cv.vTok) * 1e9 * prices.sol) : null, binds: Object.keys(binds[mint] || {}).length, ticker: state().ticker }
+  const qUsd = quote === HYPE ? prices.hype : prices.sol
+  return { ...view(c), twin, graduated: cv.complete, mc: qUsd ? Math.round((cv.vSol / cv.vTok) * 1e9 * qUsd) : null, binds: Object.keys(binds[mint] || {}).length, ticker: state().ticker }
 }
 
 // ---------------------------------------------------------------- holders bind a Hyperliquid address (signed by their Solana wallet)

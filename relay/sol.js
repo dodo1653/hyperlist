@@ -84,3 +84,19 @@ export async function tokenMeta(rpc, mint) {
   const [name, symbol, uri] = strs(Buffer.from(m.value.data[0], "base64"), 65, 3)
   return { name, symbol, uri }
 }
+
+// the quote side of a pump.fun TradeEvent (after the fixed 225 bytes: flags, counters, ix name, cashback/buyback, shareholders)
+// -> { quoteMint, quoteAmount } ; a default (all-zero) quote mint means SOL
+export function tradeQuote(b) {
+  try {
+    let o = 225 + 1 + 32                                   // track_volume, 4 x u64/i64 counters
+    const nameLen = b.readUInt32LE(o); o += 4 + nameLen    // ix_name
+    o += 1 + 8 * 4                                         // mayhem_mode, cashback bps/fee, buyback bps/fee
+    const n = b.readUInt32LE(o); o += 4 + n * 34           // shareholders: (pubkey, u16) each
+    const q = b.subarray(o, o + 32); if (q.length < 32) return null
+    const quoteMint = q.every((x) => x === 0) ? null : b58(q)
+    return { quoteMint, quoteAmount: Number(b.readBigUInt64LE(o + 32)) }
+  } catch { return null }
+}
+// the bonding curve's quote mint (after creator: is_mayhem_mode, is_cashback_coin, quote_mint); null = SOL
+export function curveQuote(data) { const b = Buffer.from(data, "base64"); if (b.length < 115) return null; const q = b.subarray(83, 115); return q.every((x) => x === 0) ? null : b58(q) }

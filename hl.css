@@ -141,3 +141,6 @@ footer { max-width: 1180px; margin: 50px auto 0; padding: 26px 20px 40px; displa
 .chain small { font: 500 12px 'Geist Mono'; color: #8eaaa5; word-break: break-all; } .chain small a { color: var(--mint); text-decoration: none; } .chain .btn { margin-top: 4px; justify-self: start; }
 @media (max-width: 900px) { .launch { grid-template-columns: 1fr; } .chains { grid-template-columns: 1fr; } }
 @media (max-width: 600px) { .lform { grid-template-columns: 1fr; } .pic { max-width: 200px; } .fields .two { grid-template-columns: 1fr; } }
+.pairsel { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; } .pairsel > span { font: 500 11px 'Geist Mono'; letter-spacing: .08em; text-transform: uppercase; color: #6f8d88; margin-right: 4px; }
+.pairsel button { display: inline-flex; align-items: center; gap: 7px; padding: 7px 12px; border-radius: 10px; border: 1px solid #16302a; background: #06100e; color: #a8c2bd; font: 600 13.5px Geist; cursor: pointer; } .pairsel button img { width: 18px; height: 18px; border-radius: 5px; }
+.pairsel button.on { border-color: rgba(151,252,228,.55); color: var(--ink); background: rgba(151,252,228,.06); } .pairsel small { flex-basis: 100%; color: #5b7a75; font: 500 11.5px 'Geist Mono'; }
