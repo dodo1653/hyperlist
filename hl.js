@@ -222,7 +222,7 @@
       step('meta', 'run')
       const r = await X.launchPump({ name, symbol, description: $('lDesc').value, twitter: $('lX').value, image: pic64, buy: +$('lBuy').value || 0, sol, pair }, (t) => { lnote(t); if (/sign the launch/.test(t)) { step('meta', 'ok'); step(cur = 'pump', 'run') } })
       step('meta', 'ok'); step('pump', 'ok'); step(cur = 'twin', 'run')
-      const pumpLine = `<span>pump.fun <a href="https://pump.fun/coin/${r.mint}" target="_blank" rel="noopener">${r.mint}</a></span>`
+      const pumpLine = `<span>pump.fun <a href="https://pump.fun/coin/${r.mint}" target="_blank" rel="noopener">${r.mint.endsWith('hype') ? r.mint.slice(0, -4) + '<b class="sfx">hype</b>' : r.mint}</a></span>`
       let twin = null
       try {
         if (!evm) { lnote('connect an EVM wallet for the HyperEVM twin'); evm = await X.connectEvm(); wset('wEvm', evm) }

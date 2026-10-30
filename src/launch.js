@@ -101,13 +101,12 @@ export async function launchPump({ name, symbol, description, twitter, image, bu
   if (pair === 'HYPE' && +buy > 0) { const have = await hypeBalance(sol); if (have < +buy) throw new Error(`your wallet holds ${have.toFixed(3)} HYPE on Solana; lower the buy or add HYPE`) }
   note('uploading the coin\'s picture and details…')
   const up = await api('upload', '', { name, symbol, description, twitter, image, origin: location.origin }); if (up.error) throw new Error(up.error)
-  // an address ending in "hype" from the relay's stock when it has one (the relay adds that mint's signature at send),
-  // otherwise a fresh key made here
+  // every launch here gets a CA ending in "hype" from the relay's stock (the relay adds that mint's signature at send)
   const v = await api('mint').catch(() => null), vanity = v?.mint || null
-  const mint = vanity ? null : Keypair.generate(), mintPk = vanity ? new PublicKey(vanity) : mint.publicKey
+  if (!vanity) throw new Error(v?.error ? 'the relay is offline, try again in a minute' : 'no address ending in hype is ready yet (a new one is ground every few minutes), try again shortly')
+  const mintPk = new PublicKey(vanity)
   note(`building the pump.fun launch (${pair} pair) and checking it on chain…`)
   const tx = await buildLaunch({ user: new PublicKey(sol), mint: mintPk, name, symbol, uri: up.uri, buy, pair })
-  if (mint) tx.sign([mint])
   note('sign the launch in your Solana wallet')
   const signed = await solWallet().signTransaction(tx)
   note('sending to Solana…')

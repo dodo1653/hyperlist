@@ -33,6 +33,7 @@ a { color: inherit; }
 .top { max-width: 1180px; margin: 0 auto; display: flex; align-items: center; gap: 22px; padding: 9px 10px 9px 12px; border: 1px solid var(--l1); border-radius: 16px; background: var(--glass); backdrop-filter: blur(14px); }
 .word { display: flex; align-items: center; gap: 10px; text-decoration: none; font: 700 16px Geist; letter-spacing: .08em; }
 .mark { width: 30px; height: 30px; } .mark rect { fill: var(--mint); } .mark circle { fill: #03201a; } .mark circle.o { fill: none; stroke: #03201a; stroke-width: 2.4; } .mark line { stroke: var(--mint); stroke-width: .8; }
+.sfx { color: var(--accent); font-weight: 600; }
 .top nav { display: flex; gap: 2px; } .top nav a { text-decoration: none; color: var(--t2); font-size: 14px; padding: 7px 12px; border-radius: 9px; } .top nav a:hover { color: var(--ink); background: var(--hover); }
 .live { margin-left: auto; display: flex; gap: 8px; align-items: center; font: 500 12px 'Geist Mono'; color: var(--t2); } .live i { width: 7px; height: 7px; border-radius: 50%; background: var(--mint); box-shadow: 0 0 10px var(--mint); } .live i.off { background: #48524f; box-shadow: none; }
 .ca { font: 500 12.5px 'Geist Mono'; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--l2); color: var(--accent); background: rgba(151,252,228,.05); cursor: default; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

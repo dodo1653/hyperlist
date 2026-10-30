@@ -50,7 +50,7 @@
 </section>
 
 <section class="sec" id="launch">
-  <div class="sh"><h2>Launch on both</h2><p>Your coin goes live on pump.fun paired with HYPE, its twin deploys on HyperEVM (Hyperliquid's chain), and your Solana wallet signs the link between them. Four steps, about a minute.</p></div>
+  <div class="sh"><h2>Launch on both</h2><p>Your coin goes live on pump.fun paired with HYPE, on a CA that ends in <b class="sfx">hype</b>. Its twin deploys on HyperEVM (Hyperliquid's chain), and your Solana wallet signs the link between them. Four steps, about a minute.</p></div>
   <div class="launch">
     <form class="lform card" id="lf" autocomplete="off">
       <label class="pic" id="lPic"><input type="file" id="lFile" accept="image/png,image/jpeg,image/webp,image/gif" hidden><img id="lPrev" alt="" hidden><span>Drop the coin's picture<small>png, jpg, webp or gif</small></span></label>
@@ -64,7 +64,7 @@
     <div class="lside card">
       <div class="wal"><button type="button" class="wb" id="wSol"><img src="assets/platforms/pumpfun.png" alt=""><span><b>Solana wallet</b><small>connect</small></span></button><button type="button" class="wb" id="wEvm"><img src="assets/platforms/hyperliquid.png" alt=""><span><b>HyperEVM wallet</b><small>connect</small></span></button></div>
       <div class="evmpick" id="evmPick" hidden></div>
-      <ol class="steps2" id="lSteps"><li data-k="meta"><i></i><span>Picture and details saved</span></li><li data-k="pump"><i></i><span>Live on pump.fun</span></li><li data-k="twin"><i></i><span>Twin deployed on HyperEVM</span></li><li data-k="link"><i></i><span>Linked by your Solana signature</span></li></ol>
+      <ol class="steps2" id="lSteps"><li data-k="meta"><i></i><span>Picture and details saved</span></li><li data-k="pump"><i></i><span>Live on pump.fun, CA ending in <b class="sfx">hype</b></span></li><li data-k="twin"><i></i><span>Twin deployed on HyperEVM</span></li><li data-k="link"><i></i><span>Linked by your Solana signature</span></li></ol>
       <button class="btn wide" id="lGo">Launch on both</button>
       <div class="lnote" id="lNote">The launch needs only your Solana wallet. The twin then needs an EVM wallet (Rabby or MetaMask) with a few cents of HYPE on HyperEVM.</div>
       <div id="lDone"></div>
@@ -88,20 +88,20 @@
 <section class="sec" id="how">
   <div class="sh"><h2>How it works</h2></div>
   <div class="steps">
-    <div><b>01</b><h3>pump.fun</h3><p>The coin launches on pump.fun from your wallet, as any other: same curve, same graduation, and every trade pays you, the creator, 0.30 %.</p></div>
+    <div><b>01</b><h3>pump.fun</h3><p>The coin launches on pump.fun from your wallet, as any other: same curve, same graduation, and every trade pays you, the creator, 0.30 %. Its CA ends in <b class="sfx">hype</b>.</p></div>
     <div><b>02</b><h3>HyperEVM twin</h3><p>In the same flow, your EVM wallet deploys its twin on HyperEVM: same name and ticker, 1B supply, the pump.fun mint written into the contract, no mint or admin keys.</p></div>
     <div><b>03</b><h3>Holders claim</h3><p>Holders bind a Hyperliquid address with their Solana wallet. You take one snapshot, post its root once, and each holder claims their exact balance on HyperEVM.</p></div>
     <div><b>04</b><h3>HyperCore ticker</h3><p>The twin is what HIP-1 links to a ticker on Hyperliquid's order book. The price is the live 31-hour auction; your creator fees fill the meter toward it.</p></div>
   </div>
   <div class="notes">
-    <p><b>Straight answers.</b> The twin is its own token on HyperEVM, claimed from a snapshot, not a live bridge: tokens bought on pump.fun after the snapshot don't follow. The HyperCore ticker takes a real HIP-1 bid in HYPE, placed by the coin's creator (for $HYPEEDGE, our fund wallet). Every snapshot is public and the page checks it against the root on chain. Binding is a signed message; HypeEdge never holds your funds.</p>
+    <p><b>Straight answers.</b> The twin is its own token on HyperEVM, claimed from a snapshot, not a live bridge: tokens bought on pump.fun after the snapshot don't follow. The HyperCore ticker takes a real HIP-1 bid in HYPE, placed by the coin's creator (for $HYPEEDGE, our fund wallet). Every snapshot is public and the page checks it against the root on chain. Binding is a signed message; HypeEdge never holds your funds. Every coin launched here has a CA ending in <b class="sfx">hype</b>: the addresses are ground ahead of time on our relay, and each key signs its coin's create once, after your wallet, then pump.fun owns the mint. No fee is added to the launch.</p>
   </div>
 </section>
 
 <section class="sec" id="hlist">
   <div class="hl">
     <div><h2>$HYPEEDGE</h2><p>Our own coin launches here like any other: on pump.fun, with its twin on HyperEVM from the first minute. Its creator fees go to the fund wallet, which bids for its ticker on HyperCore when the meter is full (order-book tickers are up to 6 letters there). Every step is posted with its transaction.</p></div>
-    <div class="hlcard" id="hlCard"><img src="assets/coin.jpg" alt="$HYPEEDGE"><div><small>$HYPEEDGE</small><b>CA soon</b><span>launched here, on pump.fun with its HyperEVM twin</span></div></div>
+    <div class="hlcard" id="hlCard"><img src="assets/coin.jpg" alt="$HYPEEDGE"><div><small>$HYPEEDGE</small><b>CA soon</b><span>launched here, on pump.fun with its HyperEVM twin. Its CA ends in <b class="sfx">hype</b>.</span></div></div>
   </div>
 </section>
 <footer><span>HypeEdge</span><span>Reads Solana and Hyperliquid in public. Independent; not affiliated with pump.fun or Hyperliquid. Memecoins are extremely risky.</span></footer>
