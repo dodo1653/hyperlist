@@ -11,8 +11,8 @@ export const HYPEREVM = { id: 999, name: "HyperEVM", nativeCurrency: { name: "HY
 const TWIN_ABI = ["name", "symbol", "solMint"].map((n) => ({ type: "function", name: n, stateMutability: "view", inputs: [], outputs: [{ type: "string" }] }))
   .concat([{ type: "function", name: "creator", stateMutability: "view", inputs: [], outputs: [{ type: "address" }] }, { type: "function", name: "root", stateMutability: "view", inputs: [], outputs: [{ type: "bytes32" }] }])
 
-export const twinMsg = (mint, twin) => `HYPEDUAL\nThe HyperEVM twin of ${mint}\nis ${twin}.`
-export const snapMsg = (mint) => `HYPEDUAL\nTake the holder snapshot of ${mint} now.\nIt can only be taken once.`
+export const twinMsg = (mint, twin) => `HypeEdge\nThe HyperEVM twin of ${mint}\nis ${twin}.`
+export const snapMsg = (mint) => `HypeEdge\nTake the holder snapshot of ${mint} now.\nIt can only be taken once.`
 
 export function createLaunch({ dir, rpc, coins, binds }) {
   const evm = createPublicClient({ chain: HYPEREVM, transport: viemHttp(process.env.HYPEREVM_RPC || "https://rpc.hyperliquid.xyz/evm") })
@@ -30,7 +30,7 @@ export function createLaunch({ dir, rpc, coins, binds }) {
     if (!/^[A-Z0-9]{1,10}$/.test(symbol)) throw new Error("tickers are 1 to 10 letters or digits")
     const hour = Date.now() - 3600_000
     for (const c of coins.values()) if (c.last > hour && c.symbol && c.symbol.toUpperCase() === symbol) throw new Error(`$${c.symbol} traded on pump.fun in the last hour. pick a ticker that's yours`)
-    const origin = /^https:\/\/[a-z0-9.-]{3,80}$/.test(String(b.origin || "")) ? b.origin : "https://hyperlist-pad.vercel.app"
+    const origin = /^https:\/\/[a-z0-9.-]{3,80}$/.test(String(b.origin || "")) ? b.origin : "https://hyperlistchain.vercel.app"
     const m = String(b.image || "").match(/^data:(image\/(png|jpeg|webp|gif));base64,(.+)$/)
     if (!m) throw new Error("the image must be png, jpg, webp or gif")
     const bytes = Buffer.from(m[3], "base64"); if (bytes.length > 1_900_000) throw new Error("the image is too large (max 1.9 MB)")

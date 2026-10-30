@@ -1,6 +1,6 @@
-# HYPEDUAL's coin image, part 2: the rendered coin on a deep green field with Hyperliquid's mint grid tunnel
+# HypeEdge's coin image, part 2: the rendered coin on a deep green field with Hyperliquid's mint grid tunnel
 # (the look of pump.fun x Hyperliquid's launch film), a soft glow behind the coin and its shadow.
-# python art/compose.py art/out/coin_raw.png art/out/hypedual_coin.png [size]
+# python art/compose.py art/out/coin_raw.png art/out/hypeedge_coin.png [size]
 import sys, math
 from PIL import Image, ImageDraw, ImageFilter, ImageChops
 

@@ -1,4 +1,4 @@
-// HYPEDUAL launcher: one coin on pump.fun (Solana) and its twin on HyperEVM (Hyperliquid), linked by the creator's
+// HypeEdge launcher: one coin on pump.fun (Solana) and its twin on HyperEVM (Hyperliquid), linked by the creator's
 // Solana signature. Bundled to assets/launch.js and loaded only when someone opens the launcher or a twin action.
 import { Buffer } from 'buffer'
 globalThis.Buffer = globalThis.Buffer || Buffer
@@ -101,15 +101,18 @@ export async function launchPump({ name, symbol, description, twitter, image, bu
   if (pair === 'HYPE' && +buy > 0) { const have = await hypeBalance(sol); if (have < +buy) throw new Error(`your wallet holds ${have.toFixed(3)} HYPE on Solana; lower the buy or add HYPE`) }
   note('uploading the coin\'s picture and details…')
   const up = await api('upload', '', { name, symbol, description, twitter, image, origin: location.origin }); if (up.error) throw new Error(up.error)
-  const mint = Keypair.generate()
+  // an address ending in "hype" from the relay's stock when it has one (the relay adds that mint's signature at send),
+  // otherwise a fresh key made here
+  const v = await api('mint').catch(() => null), vanity = v?.mint || null
+  const mint = vanity ? null : Keypair.generate(), mintPk = vanity ? new PublicKey(vanity) : mint.publicKey
   note(`building the pump.fun launch (${pair} pair) and checking it on chain…`)
-  const tx = await buildLaunch({ user: new PublicKey(sol), mint: mint.publicKey, name, symbol, uri: up.uri, buy, pair })
-  tx.sign([mint])
+  const tx = await buildLaunch({ user: new PublicKey(sol), mint: mintPk, name, symbol, uri: up.uri, buy, pair })
+  if (mint) tx.sign([mint])
   note('sign the launch in your Solana wallet')
   const signed = await solWallet().signTransaction(tx)
   note('sending to Solana…')
-  const s = await api('send', '', { tx: Buffer.from(signed.serialize()).toString('base64') }); if (s.error) throw new Error(s.error)
-  const m = mint.publicKey.toBase58()
+  const s = await api('send', '', { tx: Buffer.from(signed.serialize()).toString('base64'), vanity }); if (s.error) throw new Error(s.error)
+  const m = mintPk.toBase58()
   for (let i = 0; i < 40; i++) { const c = await api('coin', '&mint=' + m); if (!c.error) return { mint: m, sig: s.signature, image: up.image }; await sleep(1500) }
   throw new Error('the launch was sent (' + s.signature + ') but has not shown up on chain yet')
 }

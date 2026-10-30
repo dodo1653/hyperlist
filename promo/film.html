@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><title>HYPEDUAL film</title>
+<html lang="en"><head><meta charset="utf-8"><title>HypeEdge film</title>
 <link rel="stylesheet" href="fonts/fonts.css">
 <style>
   html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; background: #000; font-family: Inter, sans-serif; -webkit-font-smoothing: antialiased; }
@@ -44,7 +44,7 @@
   .chip { position: absolute; padding: 18px 26px; border-radius: 20px; background: rgba(8,17,15,.82); border: 1px solid #1d3e37; color: #ecfffa; font: 500 30px Inter; box-shadow: 0 20px 50px rgba(0,0,0,.35); white-space: nowrap; }
   .chip b { color: #97fce4; font-weight: 600; }
   .icon { position: absolute; width: 130px; height: 130px; border-radius: 30px; box-shadow: 0 20px 50px rgba(4,60,48,.22); }
-  #end .mark { position: absolute; left: 50%; top: 640px; transform: translateX(-50%); display: flex; align-items: center; gap: 26px; font: 700 96px Inter; letter-spacing: .06em; color: #ecfffa; }
+  #end .mark { position: absolute; left: 50%; top: 640px; transform: translateX(-50%); display: flex; align-items: center; gap: 26px; font: 700 96px Inter; letter-spacing: -.01em; color: #ecfffa; }
   #end .mark svg { width: 92px; height: 92px; }
   #end .tag { position: absolute; left: 0; right: 0; top: 790px; text-align: center; font: 500 42px Inter; color: #b9d3ce; letter-spacing: -.01em; }
   #end .tkr { position: absolute; left: 0; right: 0; top: 870px; text-align: center; font: 600 30px Inter; letter-spacing: .2em; color: #97fce4; }
@@ -66,7 +66,7 @@
 <!-- type -->
 <div class="ov words" id="w_x" style="top:850px;font:500 34px Inter;color:#7fa9a0"><span>pump.fun</span><span>×</span><span>Hyperliquid</span></div>
 <div class="ov words" id="w_intro" style="top:388px;font:500 40px Inter;color:#d8fff5"><span>Introducing</span></div>
-<div class="ov words serif" id="w_title" style="top:420px;font-size:250px;line-height:1;color:#fff"><span>Hypedual</span></div>
+<div class="ov words serif" id="w_title" style="top:420px;font-size:250px;line-height:1;color:#fff"><span>HypeEdge</span></div>
 <div class="ov words" id="w_launch" style="top:440px;font:600 150px Inter;letter-spacing:-.04em;color:#fff"><span>launch</span></div>
 <div class="ov words" id="w_launch2" style="top:610px;font:500 40px Inter;color:#d8fff5"><span>on</span><span>pump.fun</span></div>
 <div class="ov words" id="w_land" style="top:440px;font:600 150px Inter;letter-spacing:-.04em;color:#fff"><span>land</span></div>
@@ -82,7 +82,7 @@
 
 <!-- the launcher -->
 <div class="ov" id="card" style="opacity:0"><div class="lc">
-  <div class="lf"><div class="pic"><img id="cpic" src="../art/out/hypedual_coin.png" alt=""></div>
+  <div class="lf"><div class="pic"><img id="cpic" src="../art/out/hypeedge_coin.png" alt=""></div>
     <div class="fl"><div class="two"><label>Name<div class="in" id="iName"><b></b></div></label><label>Ticker<div class="in" id="iSym"><b></b></div></label></div>
       <label>Description<div class="in" style="height:86px;align-items:flex-start;padding-top:14px;color:#a8c2bd">Launch on pump.fun. Land on Hyperliquid.</div></label>
       <div class="two"><label>X link<div class="in" style="color:#6f8d88">x.com/…</div></label><label>Your buy at launch<div class="in">0</div></label></div></div></div>
@@ -117,14 +117,14 @@
   <img class="icon" src="../assets/platforms/fomo.png" data-p="160,620,0.9" alt="">
   <img class="icon" src="../assets/platforms/terminal.png" data-p="1380,830,0.8" alt="">
   <img class="icon" src="../assets/platforms/hyperliquid.png" data-p="560,860,0.75" alt="">
-  <img class="icon" src="../art/out/hypedual_coin.png" data-p="960,860,0.95" alt="" style="border-radius:50%">
+  <img class="icon" src="../art/out/hypeedge_coin.png" data-p="960,860,0.95" alt="" style="border-radius:50%">
 </div>
 
 <!-- end -->
 <div class="ov full" id="end" style="opacity:0">
-  <div class="mark" id="eMark"><svg viewBox="0 0 32 32"><rect width="32" height="32" rx="9" fill="#97fce4"/><circle cx="11" cy="16" r="5.2" fill="#03201a"/><circle cx="21.6" cy="16" r="4" fill="none" stroke="#03201a" stroke-width="2.4"/></svg>HYPEDUAL</div>
+  <div class="mark" id="eMark"><svg viewBox="0 0 32 32"><rect width="32" height="32" rx="9" fill="#97fce4"/><g transform="rotate(-14 16.3 16)"><circle cx="11" cy="16" r="4" fill="none" stroke="#03201a" stroke-width="2.4"/><circle cx="21.6" cy="16" r="5.2" fill="#03201a"/><line x1="18.21" y1="20.33" x2="24.99" y2="11.67" stroke="#97fce4" stroke-width=".8"/></g></svg>HypeEdge</div>
   <div class="tag" id="eTag">Launch on pump.fun. Land on Hyperliquid.</div>
-  <div class="tkr" id="eTkr">$HYPEDUAL</div>
+  <div class="tkr" id="eTkr">$HYPEEDGE</div>
   <div class="fine" id="eFine">Independent. Not affiliated with, sponsored or endorsed by pump.fun or Hyperliquid.</div>
 </div>
 <div class="ov full" id="grain"></div>
@@ -237,7 +237,7 @@ window.renderFrame = (t) => {
     words('w_x', 0.5, t, 2.1)
     fade = 1 - seg(t, 0, 0.35)
   }
-  // 2. "Introducing Hypedual" on deep teal with arcs (3.6 - 6.8)
+  // 2. "Introducing HypeEdge" on deep teal with arcs (3.6 - 6.8)
   else if (t < 6.8) {
     bg = '#0b2621'; show(A)
     const away = eIO(seg(t, 3.6, 4.1)); A.position.set(0, 0, lerp(0, 9.6, away)); A.rotation.set(0.12, t * 2, 0); A.visible = away < 0.99
@@ -266,7 +266,7 @@ window.renderFrame = (t) => {
     const rise = eOut(seg(t, 12.6, 13.3)), out = seg(t, 18.0, 18.4)
     $('card').style.opacity = rise * (1 - out); $('card').style.transform = `translateX(-50%) translateY(${(1 - rise) * 80}px) scale(${lerp(1.2, 1.25, rise)}) perspective(2200px) rotateX(${lerp(14, 4, eIO(seg(t, 12.6, 18)))}deg)`
     $('card').style.top = '300px'
-    type('iName', 'HypeDual', t, 13.2, 13.85); type('iSym', 'HYPEDUAL', t, 14.0, 14.55)
+    type('iName', 'HypeEdge', t, 13.2, 13.85); type('iSym', 'HYPEEDGE', t, 14.0, 14.55)
     $('cpic').style.opacity = seg(t, 13.0, 13.25)
     // the cursor: from the ticker to the button, a press
     const cur = $('cursor'), p = eIO(seg(t, 14.45, 15.0)), press = t > 15.0 && t < 15.15

@@ -1,4 +1,4 @@
-// HYPEDUAL relay. Everything it serves is read live:
+// HypeEdge relay. Everything it serves is read live:
 //  - Hyperliquid: the HIP-1 ticker gas auction (spotDeployState), HYPE / SOL prices, the newest HIP-1 tickers (spotMeta)
 //  - pump.fun: every bonding-curve trade from the program logs, which carries the creator and the creator's fee (0.30 %)
 //  - Solana: each creator's unclaimed fees (pump.fun creator vault + PumpSwap creator vault)
@@ -12,6 +12,7 @@ import { Buffer } from "node:buffer"
 import { b58, unb58, isKey, verify, makeRpc, curveOf, parseCurve, vaults, tokenMeta, tradeQuote, curveQuote, pda, PUMP } from "./sol.js"
 const HYPE = "98sMhvDwXj1RQi5c5Mndm3vPe9cBqPrbLaufMXFNMh5g"     // HYPE on Solana: a pump.fun listed quote mint
 import { createLaunch, twinMsg, snapMsg } from "./launch.js"
+import { createVanity } from "./vanity.js"
 
 const PORT = +(process.env.PORT || 8798)
 const rpc = makeRpc(process.env.RPC_URL || "https://solana-rpc.publicnode.com")
@@ -167,7 +168,7 @@ async function coinPage(mint) {
   if (!a?.value) throw new Error("not a pump.fun coin")
   const cv = parseCurve(a.value.data[0]), c = coin(mint), quote = curveQuote(a.value.data[0])
   c.creator = c.creator || cv.creator; if (!c.last) c.last = Date.now()
-  if (quote && quote !== HYPE) throw new Error("this coin trades against a token HYPEDUAL doesn't read yet")
+  if (quote && quote !== HYPE) throw new Error("this coin trades against a token HypeEdge doesn't read yet")
   if (quote === HYPE) {                                        // creator fees sit in the creator vault's HYPE account
     c.unit = "HYPE"
     const ata = pda([unb58(pda(["creator-vault", unb58(c.creator)], PUMP)), unb58("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"), unb58(HYPE)], "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL")
@@ -185,7 +186,7 @@ async function coinPage(mint) {
 
 // ---------------------------------------------------------------- holders bind a Hyperliquid address (signed by their Solana wallet)
 const binds = load("binds.json", {})
-const bindMsg = (mint, sol, hlAddr) => `HYPEDUAL\nI bind Hyperliquid address ${hlAddr}\nto my Solana wallet ${sol}\nfor the Hyperliquid twin of ${mint}.`
+const bindMsg = (mint, sol, hlAddr) => `HypeEdge\nI bind Hyperliquid address ${hlAddr}\nto my Solana wallet ${sol}\nfor the Hyperliquid twin of ${mint}.`
 function bind(b) {
   const { mint, sol, hl: hlAddr, sig } = b || {}
   if (!isKey(mint) || !isKey(sol)) throw new Error("bad address")
@@ -197,6 +198,7 @@ function bind(b) {
 }
 
 const launch = createLaunch({ dir: DIR, rpc, coins, binds })
+const vanity = createVanity({ dir: DIR, target: +(process.env.VANITY_POOL || 8), threads: +(process.env.VANITY_THREADS || 8) })   // mints ending in "hype"
 
 // ---------------------------------------------------------------- http
 const json = (res, v, code = 200) => { res.writeHead(code, { "content-type": "application/json", "access-control-allow-origin": "*", "cache-control": "no-store" }); res.end(JSON.stringify(v)) }
@@ -210,7 +212,14 @@ http.createServer(async (req, res) => {
     const body = async () => { const ch = []; let n = 0; for await (const x of req) { n += x.length; if (n > 3_000_000) throw new Error("too large"); ch.push(x) } return JSON.parse(Buffer.concat(ch).toString() || "{}") }
     if (u.pathname === "/v1/bind" && req.method === "POST") return json(res, bind(await body()))
     if (u.pathname === "/v1/upload" && req.method === "POST") return json(res, launch.upload(await body()))
-    if (u.pathname === "/v1/send" && req.method === "POST") return json(res, await launch.send(await body()))
+    if (u.pathname === "/v1/mint") return json(res, vanity.reserve())
+    if (u.pathname === "/v1/vanity") return json(res, vanity.status())
+    if (u.pathname === "/v1/send" && req.method === "POST") {
+      // a launch built around one of our vanity mints: the relay adds the mint's signature after the wallet's
+      const b = await body(); if (b.vanity) b.tx = vanity.cosign(b.tx, b.vanity)
+      const r = await launch.send(b); if (b.vanity) vanity.spent(b.vanity, r.signature)
+      return json(res, r)
+    }
     if (u.pathname === "/v1/twin" && req.method === "POST") return json(res, await launch.twin(await body()))
     if (u.pathname === "/v1/snapshot" && req.method === "POST") return json(res, await launch.snapshot(await body()))
     if (u.pathname === "/v1/twinmsg") return json(res, { msg: twinMsg(u.searchParams.get("mint"), u.searchParams.get("twin")) })

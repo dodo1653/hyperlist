@@ -1,5 +1,5 @@
-# HYPEDUAL's coin image, part 1: a thick glossy coin in Hyperliquid mint with the HYPEDUAL mark (a solid disc and a
-# ring, a coin and its twin) raised on its face in deep green enamel, a raised rim and a reeded edge. Rendered on a transparent film;
+# HypeEdge's coin image, part 1: a thick glossy coin in Hyperliquid mint with the HypeEdge mark (a ring and a solid disc
+# cut by one diagonal slice, the pair tilted up 14 degrees; the same mark as art/icon.py) raised on its face in deep green enamel, a raised rim and a reeded edge. Rendered on a transparent film;
 # art/compose.py puts it on the background.
 # blender -b --factory-startup --python art/coin.py -- <out.png> [samples] [res] [yaw_deg] [pitch_deg]
 import bpy, bmesh, math, sys, os
@@ -70,15 +70,15 @@ def bar(x1, x2, y, w=2.6, side=1):
     m2 = b.modifiers.new("soft", "BEVEL"); m2.width = 0.014; m2.segments = 5; m2.limit_method = "ANGLE"
     b.data.materials.append(INK); b.data.polygons.foreach_set("use_smooth", [True] * len(b.data.polygons)); b.parent = coin
 # the front always; the back too for the film (the coin turns), mirrored so it reads from behind
-# the dual mark: a solid disc and a ring beside it (a coin and its twin), from the logo's 32-unit grid, sized inside the rim
+# the mark: a ring and a sliced solid disc (a coin and its twin, with an edge), from the logo's 32-unit grid, sized inside the rim
 Z = 1.0
-def disc_mesh(cx, r_out, r_in, side):
+def disc_mesh(cx, r_out, r_in, side, cy=0.0):
     # an annulus (or a full disc when r_in is 0) given depth, sitting on the face
     me = bpy.data.meshes.new("mark"); bm = bmesh.new(); n = 128
     z0 = side * (FZ - 0.01)
-    outer = [bm.verts.new((cx + r_out * math.cos(2 * math.pi * i / n), r_out * math.sin(2 * math.pi * i / n), z0)) for i in range(n)]
+    outer = [bm.verts.new((cx + r_out * math.cos(2 * math.pi * i / n), cy + r_out * math.sin(2 * math.pi * i / n), z0)) for i in range(n)]
     if r_in > 0:
-        inner = [bm.verts.new((cx + r_in * math.cos(2 * math.pi * i / n), r_in * math.sin(2 * math.pi * i / n), z0)) for i in range(n)]
+        inner = [bm.verts.new((cx + r_in * math.cos(2 * math.pi * i / n), cy + r_in * math.sin(2 * math.pi * i / n), z0)) for i in range(n)]
         faces = [bm.faces.new((outer[i], outer[(i + 1) % n], inner[(i + 1) % n], inner[i])) for i in range(n)]
     else:
         faces = [bm.faces.new(outer)]
@@ -88,10 +88,34 @@ def disc_mesh(cx, r_out, r_in, side):
     o = bpy.data.objects.new("mark", me); sc.collection.objects.link(o)
     m = o.modifiers.new("soft", "BEVEL"); m.width = 0.014; m.segments = 5; m.limit_method = "ANGLE"
     o.data.materials.append(INK); o.data.polygons.foreach_set("use_smooth", [True] * len(o.data.polygons)); o.parent = coin
-X = lambda x: (x - 16.3) * Z * K
+def poly_mesh(pts, side):
+    # one convex outline (front-face coordinates, y up) given depth on the face; mirrored in x for the back
+    me = bpy.data.meshes.new("mark"); bm = bmesh.new(); z0 = side * (FZ - 0.01)
+    f = bm.faces.new([bm.verts.new((side * x, y, z0)) for x, y in (pts if side > 0 else pts[::-1])])
+    ex = bmesh.ops.extrude_face_region(bm, geom=[f])
+    bmesh.ops.translate(bm, vec=(0, 0, side * H), verts=[v for v in ex["geom"] if isinstance(v, bmesh.types.BMVert)])
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces); bm.to_mesh(me); bm.free()
+    o = bpy.data.objects.new("mark", me); sc.collection.objects.link(o)
+    m = o.modifiers.new("soft", "BEVEL"); m.width = 0.014; m.segments = 5; m.limit_method = "ANGLE"
+    o.data.materials.append(INK); o.data.polygons.foreach_set("use_smooth", [True] * len(o.data.polygons)); o.parent = coin
+U = Z * K; TILT = math.radians(14); CUT = math.radians(52) + TILT        # the pair rises to the right; the slice turns with it
+rot = lambda x, y: (x * math.cos(TILT) - y * math.sin(TILT), x * math.sin(TILT) + y * math.cos(TILT))
+ring_c, disc_c = rot(-5.3 * U, 0), rot(5.3 * U, 0)
+def half_disc(cx, cy, r, sign, gap, shift, n=160):
+    # the part of the disc on one side of the cut (past half the gap), slid along the cut by `shift`
+    ux, uy = math.cos(CUT), math.sin(CUT); nx, ny = uy, -ux                 # normal points right and down
+    circ = [(r * math.cos(2 * math.pi * i / n), r * math.sin(2 * math.pi * i / n)) for i in range(n)]
+    d = lambda p: (p[0] * nx + p[1] * ny) * sign - gap / 2
+    out = []
+    for i in range(n):                                                      # clip the circle by the half-plane
+        a, b = circ[i], circ[(i + 1) % n]; da, db = d(a), d(b)
+        if da >= 0: out.append(a)
+        if (da >= 0) != (db >= 0): t = da / (da - db); out.append((a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t))
+    sx, sy = (ux * shift, uy * shift) if sign > 0 else (0, 0)
+    return [(cx + x + sx, cy + y + sy) for x, y in out]
 for side in ((1, -1) if OUT.endswith(".glb") else (1,)):
-    disc_mesh(side * X(11), 5.2 * Z * K, 0, side)
-    disc_mesh(side * X(21.6), 5.2 * Z * K, 2.8 * Z * K, side)
+    disc_mesh(side * ring_c[0], 5.2 * U, 2.8 * U, side, cy=ring_c[1])
+    for sign in (-1, 1): poly_mesh(half_disc(disc_c[0], disc_c[1], 5.2 * U, sign, 0.775 * U, 0.5 * U), side)
 
 if OUT.endswith(".glb"):                                # the same coin for the film (three.js): face along +Z here, +Y in glTF
     bpy.ops.object.select_all(action="SELECT")

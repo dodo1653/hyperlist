@@ -1,9 +1,9 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>HYPEDUAL · Launch on pump.fun. Land on Hyperliquid.</title>
-<meta name="description" content="HYPEDUAL launches your coin on pump.fun and deploys its twin on HyperEVM (Hyperliquid) in one flow, linked by your Solana signature. Holders claim the twin; creator fees fill a live meter toward a HyperCore ticker.">
-<meta property="og:title" content="HYPEDUAL · Launch on pump.fun. Land on Hyperliquid.">
+<title>HypeEdge · Launch on pump.fun. Land on Hyperliquid.</title>
+<meta name="description" content="HypeEdge launches your coin on pump.fun and deploys its twin on HyperEVM (Hyperliquid) in one flow, linked by your Solana signature. Holders claim the twin; creator fees fill a live meter toward a HyperCore ticker.">
+<meta property="og:title" content="HypeEdge · Launch on pump.fun. Land on Hyperliquid.">
 <meta property="og:description" content="One flow puts your coin on pump.fun and its twin on HyperEVM, linked by your signature. Holders claim the twin; creator fees fill a live meter toward a HyperCore ticker.">
 <meta property="og:image" content="assets/og.jpg">
 <meta name="twitter:card" content="summary_large_image">
@@ -14,8 +14,8 @@
 </head>
 <body>
 <div class="navwrap"><header class="top">
-  <a class="word" href="#"><svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9"/><circle cx="11" cy="16" r="5.2"/><circle class="o" cx="21.6" cy="16" r="4"/></svg><span>HYPEDUAL</span></a>
-  <nav><a href="#launch">Launch</a><a href="#check">Check a coin</a><a href="#race">The race</a><a href="#how">How it works</a><a href="#hlist">$HYPEDUAL</a></nav>
+  <a class="word" href="#"><svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9"/><g transform="rotate(-14 16.3 16)"><circle class="o" cx="11" cy="16" r="4"/><circle cx="21.6" cy="16" r="5.2"/><line x1="18.21" y1="20.33" x2="24.99" y2="11.67"/></g></svg><span>HypeEdge</span></a>
+  <nav><a href="#launch">Launch</a><a href="#check">Check a coin</a><a href="#race">The race</a><a href="#how">How it works</a><a href="#hlist">$HYPEEDGE</a></nav>
   <span class="live"><i id="dot"></i><span id="liveTxt">connecting</span></span>
   <button class="theme" id="theme" type="button" aria-label="Switch light / dark"><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></svg></button>
   <span class="ca" id="ca">CA soon</span>
@@ -55,7 +55,7 @@
     <form class="lform card" id="lf" autocomplete="off">
       <label class="pic" id="lPic"><input type="file" id="lFile" accept="image/png,image/jpeg,image/webp,image/gif" hidden><img id="lPrev" alt="" hidden><span>Drop the coin's picture<small>png, jpg, webp or gif</small></span></label>
       <div class="fields">
-        <div class="two"><label>Name<input id="lName" maxlength="32" placeholder="HypeDual"></label><label>Ticker<input id="lSym" maxlength="10" placeholder="HYPEDUAL"><small>up to 10 (HyperCore order-book tickers are up to 6)</small></label></div>
+        <div class="two"><label>Name<input id="lName" maxlength="32" placeholder="HypeEdge"></label><label>Ticker<input id="lSym" maxlength="10" placeholder="HYPEEDGE"><small>up to 10 (HyperCore order-book tickers are up to 6)</small></label></div>
         <label>Description<textarea id="lDesc" maxlength="600" rows="3" placeholder="what it is, in a line or two"></textarea></label>
         <div class="pairsel"><span>Pair</span><button type="button" class="on" data-p="HYPE"><img src="assets/platforms/hyperliquid.png" alt="">HYPE</button><button type="button" data-p="SOL">SOL</button><small id="pairNote">trades against HYPE on pump.fun; creator fees are paid in HYPE</small></div>
         <div class="two"><label>X link<input id="lX" placeholder="https://x.com/…"></label><label>Your buy at launch<input id="lBuy" type="number" min="0" step="0.01" value="0"><small id="buyNote">HYPE, 0 for none</small></label></div>
@@ -94,17 +94,17 @@
     <div><b>04</b><h3>HyperCore ticker</h3><p>The twin is what HIP-1 links to a ticker on Hyperliquid's order book. The price is the live 31-hour auction; your creator fees fill the meter toward it.</p></div>
   </div>
   <div class="notes">
-    <p><b>Straight answers.</b> The twin is its own token on HyperEVM, claimed from a snapshot, not a live bridge: tokens bought on pump.fun after the snapshot don't follow. The HyperCore ticker takes a real HIP-1 bid in HYPE, placed by the coin's creator (for $HYPEDUAL, our fund wallet). Every snapshot is public and the page checks it against the root on chain. Binding is a signed message; HYPEDUAL never holds your funds.</p>
+    <p><b>Straight answers.</b> The twin is its own token on HyperEVM, claimed from a snapshot, not a live bridge: tokens bought on pump.fun after the snapshot don't follow. The HyperCore ticker takes a real HIP-1 bid in HYPE, placed by the coin's creator (for $HYPEEDGE, our fund wallet). Every snapshot is public and the page checks it against the root on chain. Binding is a signed message; HypeEdge never holds your funds.</p>
   </div>
 </section>
 
 <section class="sec" id="hlist">
   <div class="hl">
-    <div><h2>$HYPEDUAL</h2><p>Our own coin launches here like any other: on pump.fun, with its twin on HyperEVM from the first minute. Its creator fees go to the fund wallet, which bids for its ticker on HyperCore when the meter is full (order-book tickers are up to 6 letters there). Every step is posted with its transaction.</p></div>
-    <div class="hlcard" id="hlCard"><img src="assets/coin.jpg" alt="$HYPEDUAL"><div><small>$HYPEDUAL</small><b>CA soon</b><span>launched here, on pump.fun with its HyperEVM twin</span></div></div>
+    <div><h2>$HYPEEDGE</h2><p>Our own coin launches here like any other: on pump.fun, with its twin on HyperEVM from the first minute. Its creator fees go to the fund wallet, which bids for its ticker on HyperCore when the meter is full (order-book tickers are up to 6 letters there). Every step is posted with its transaction.</p></div>
+    <div class="hlcard" id="hlCard"><img src="assets/coin.jpg" alt="$HYPEEDGE"><div><small>$HYPEEDGE</small><b>CA soon</b><span>launched here, on pump.fun with its HyperEVM twin</span></div></div>
   </div>
 </section>
-<footer><span>HYPEDUAL</span><span>Reads Solana and Hyperliquid in public. Independent; not affiliated with pump.fun or Hyperliquid. Memecoins are extremely risky.</span></footer>
+<footer><span>HypeEdge</span><span>Reads Solana and Hyperliquid in public. Independent; not affiliated with pump.fun or Hyperliquid. Memecoins are extremely risky.</span></footer>
 </main>
 <div class="toast" id="toast" hidden></div>
 <script src="hl.js"></script>

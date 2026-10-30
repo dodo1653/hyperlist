@@ -40,13 +40,13 @@ const binds = {}
 const L = createLaunch({ dir, rpc, coins: new Map(), binds })
 
 // the twin: deployed by the dev's EVM wallet, then linked by the Solana creator
-const twin = (await tx(dev, encodeDeployData({ abi, bytecode, args: ['HypeDual', 'HYPEDUAL', MINT] }))).contractAddress
+const twin = (await tx(dev, encodeDeployData({ abi, bytecode, args: ['HypeEdge', 'HYPEEDGE', MINT] }))).contractAddress
 const other = (await tx(dev, encodeDeployData({ abi, bytecode, args: ['Other', 'OTH', b58(crypto.getRandomValues(new Uint8Array(32)))] }))).contractAddress
 await throws(L.twin({ mint: MINT, twin, sig: sign(stranger, twinMsg(MINT, twin)) }), 'a stranger links the twin', /creator wallet/)
 await throws(L.twin({ mint: MINT, twin: other, sig: sign(creator, twinMsg(MINT, other)) }), 'a twin of another coin', /different coin/)
 await throws(L.snapshot({ mint: MINT, sig: sign(creator, snapMsg(MINT)) }), 'snapshot before a twin', /no twin/)
 const t = await L.twin({ mint: MINT, twin, sig: sign(creator, twinMsg(MINT, twin)) })
-check(t.coin.symbol === 'HYPEDUAL' && t.coin.evmCreator === dev.toLowerCase(), 'twin registered with its creator')
+check(t.coin.symbol === 'HYPEEDGE' && t.coin.evmCreator === dev.toLowerCase(), 'twin registered with its creator')
 check(L.list().length === 1, 'listed')
 
 // holders bind (h1 and h2 to the same EVM address is allowed: amounts add up), h3 holds nothing
@@ -71,9 +71,9 @@ check(!S.entries.find((x) => x.account === carol.toLowerCase()), 'carol (0 balan
 
 // metadata upload + serving
 const png = 'data:image/png;base64,' + Buffer.from([0x89, 0x50, 0x4e, 0x47, 13, 10, 26, 10, 0, 0, 0, 0]).toString('base64')
-const up = L.upload({ name: 'HypeDual', symbol: 'hypedual', image: png, origin: 'https://hyperlist.vercel.app', description: 'x' })
+const up = L.upload({ name: 'HypeEdge', symbol: 'hypeedge', image: png, origin: 'https://hyperlist.vercel.app', description: 'x' })
 check(up.uri === `https://hyperlist.vercel.app/m/${up.id}.json`, 'metadata uri on the site domain')
-check(JSON.parse(L.serve('m', up.id).body).symbol === 'HYPEDUAL' && L.serve('i', up.id).type === 'image/png', 'served back')
+check(JSON.parse(L.serve('m', up.id).body).symbol === 'HYPEEDGE' && L.serve('i', up.id).type === 'image/png', 'served back')
 await throws(Promise.resolve().then(() => L.upload({ name: 'x', symbol: 'BAD TICKER', image: png })), 'ticker with a space', /1 to 10/)
 
 console.log(`${ok} passed, ${bad} failed`)
