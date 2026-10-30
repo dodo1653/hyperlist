@@ -87,9 +87,7 @@
     const hp = c.unit === 'HYPE', u = hp ? 'HYPE' : 'SOL', tgt = hp ? c.ticker.hype : c.ticker.sol, pct = c.pct ?? 0
     $('result').innerHTML = `<div class="card">
       <div class="hd">${img(c)}<div><b>$${esc(c.symbol || '?')}</b><small>${esc(c.name)} · creator ${esc(c.creator.slice(0, 4))}…${esc(c.creator.slice(-4))}</small></div><span class="tag">${hp ? 'HYPE pair · ' : ''}${c.graduated ? 'graduated · PumpSwap' : 'on the bonding curve'}${c.mc ? ' · mcap ' + usd(c.mc) : ''}</span></div>
-      <div class="meter"><i style="width:${Math.min(100, pct)}%"></i></div>
-      <div class="ml"><span><b>${n(c.unclaimed, 3)} ${u}</b> unclaimed creator fees${hp ? ', paid in HYPE' : ''}</span><span>a ticker now: <b>${n(tgt, 0)} ${u}</b> ${hp ? '(the auction is priced in HYPE too, ' + usd(c.ticker.usd) + ')' : '(' + n(c.ticker.hype, 0) + ' HYPE, ' + usd(c.ticker.usd) + ')'}</span></div>
-      <div class="kv"><div><small>of a ticker</small><b>${n(pct, pct < 1 ? 3 : 2)}%</b></div><div><small>fees, last hour</small><b>${n(c.fees1h, 3)} ${u}</b></div><div><small>volume, last hour</small><b>${n(c.vol1h, 1)} ${u}</b></div><div><small>full at this pace</small><b>${pace(c.etaH)}</b></div></div>
+      <div id="gauge">${gauge(c)}</div>
       ${chains(c, pct)}
       <div class="act"><button class="btn sm" id="share">Copy this coin's meter link</button><a class="btn ghost sm" target="_blank" rel="noopener" href="https://x.com/intent/post?text=${encodeURIComponent(`$${c.symbol}'s creator fees cover ${n(pct, pct < 1 ? 3 : 2)}% of a Hyperliquid ticker right now.\n\n${location.origin}/?c=${c.mint}`)}">Post it</a><span class="fine">${c.binds} holder${c.binds === 1 ? '' : 's'} bound a Hyperliquid address</span></div>
       <div class="bind"><h4>Hold $${esc(c.symbol)}? Bind your Hyperliquid address.</h4><p>Your Solana wallet signs one message linking it to your Hyperliquid (0x…) address. When the creator takes the snapshot, you claim your exact balance of the twin on HyperEVM. It moves nothing.</p>
@@ -98,7 +96,7 @@
     $('share').onclick = () => navigator.clipboard?.writeText(`${location.origin}/?c=${c.mint}`).then(() => toast('Link copied'))
     $('evm').onclick = async () => { try { const [a] = await window.ethereum.request({ method: 'eth_requestAccounts' }); $('hlAddr').value = a } catch { $('bindErr').textContent = 'no EVM wallet found: paste the address instead' } }
     $('sign').onclick = () => bind(c)
-    wireChains(c)
+    wireChains(c); liveGauge(c.mint)
   }
 
   // ------------------------------------------------------------ binding: one signed message, verified by the relay
@@ -118,6 +116,42 @@
       if (r.error) throw new Error(r.error)
       toast(`Bound. ${r.binds} holder${r.binds === 1 ? '' : 's'} on this coin.`); check(c.mint)
     } catch (e) { err.textContent = e.message || 'cancelled' }
+  }
+
+  // ------------------------------------------------------------ the meter: a log-scale gauge toward a HyperCore ticker
+  // Progress is tiny at first (fractions of a percent), so the scale is logarithmic with labelled milestones; the dashed
+  // ghost is where the creator vault lands in 24 hours if fees keep coming at the last hour's rate.
+  const LOG0 = -2, LOG1 = 2                                                     // 0.01 % .. 100 %
+  const lpos = (p) => (p > 0 ? Math.max(0, Math.min(1, (Math.log10(p) - LOG0) / (LOG1 - LOG0))) : 0)
+  function gauge(c) {
+    const hp = c.unit === 'HYPE', u = hp ? 'HYPE' : 'SOL', tgt = hp ? c.ticker.hype : c.ticker.sol
+    const have = c.unclaimed || 0, pct = c.pct || 0, p24 = tgt ? ((have + (c.fees1h || 0) * 24) / tgt) * 100 : 0
+    const xh = lpos(pct), xg = lpos(p24)
+    const marks = [[0.01, '0.01%'], [0.1, '0.1%'], [1, '1%'], [10, '10%'], [100, 'ticker']]
+    const fmt = (v) => (v >= 100 ? n(v, 0) : v >= 1 ? n(v, 2) : n(v, 3))
+    return `<div class="gz">
+      <div class="gz-top"><div><small>toward a Hyperliquid ticker</small><b>${fmt(have)} <em>${u}</em></b><span>unclaimed creator fees${hp ? ', paid in HYPE' : ''}</span></div>
+        <div class="gz-tgt"><small>a ticker right now</small><b>${n(tgt, 0)} <em>${u}</em></b><span>${hp ? 'the HIP-1 auction is priced in HYPE · ' : ''}${usd(c.ticker.usd)}</span></div></div>
+      <div class="gz-track" role="img" aria-label="${n(pct, 3)}% of a ticker">
+        <div class="gz-rail"></div>
+        ${xg > xh + 0.004 ? `<div class="gz-ghost" style="left:${xh * 100}%;width:${(xg - xh) * 100}%"></div>` : ''}
+        ${pct > 0 ? `<div class="gz-fill" style="width:${Math.max(1.5, xh * 100)}%"></div><div class="gz-head" style="left:${Math.max(0.9, xh * 100)}%"></div>` : ''}
+        ${marks.map(([v, l]) => `<div class="gz-mark${v === 100 ? ' end' : v === 0.01 ? ' start' : ''}${v === 0.1 || v === 10 ? ' minor' : ''}" style="left:${lpos(v) * 100}%"><i></i><span>${l}</span></div>`).join('')}
+      </div>
+      <div class="gz-legend"><span><i class="lg-fill"></i>now · ${n(pct, pct < 1 ? 3 : 2)}%</span>${xg > xh + 0.004 ? `<span><i class="lg-ghost"></i>in 24 h at this pace · ${n(p24, p24 < 1 ? 3 : 2)}%</span>` : ''}<span class="lg-log">log scale</span></div>
+      <div class="gz-stats">
+        <div><small>creator fees, last hour</small><b>${fmt(c.fees1h || 0)} <em>${u}</em></b></div>
+        <div><small>volume, last hour</small><b>${n(c.vol1h || 0, 1)} <em>${u}</em></b></div>
+        <div><small>full at this pace</small><b>${pace(c.etaH)}</b></div>
+      </div></div>`
+  }
+  let gaugeTimer = null
+  function liveGauge(mint) {
+    clearInterval(gaugeTimer)
+    gaugeTimer = setInterval(async () => {
+      const el = $('gauge'); if (!el) return clearInterval(gaugeTimer)
+      const c = await api('coin', '&mint=' + mint).catch(() => null); if (c && !c.error && $('gauge')) $('gauge').innerHTML = gauge(c)
+    }, 15000)
   }
 
   // ------------------------------------------------------------ the coin's three chains: pump.fun, HyperEVM twin, HyperCore ticker
@@ -194,6 +228,9 @@
     $('launched').querySelectorAll('.lc').forEach((d) => (d.onclick = () => { $('mint').value = d.dataset.m; check(d.dataset.m); $('check').scrollIntoView() }))
   }
   launched(); setInterval(launched, 20000)
+
+  // light / dark: remembered per browser
+  $('theme').onclick = () => { const t = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light'; document.documentElement.dataset.theme = t; try { localStorage.setItem('hd-theme', t) } catch {} }
 
   const start = new URLSearchParams(location.search).get('c')
   if (start) { $('mint').value = start; check(start); setTimeout(() => $('check').scrollIntoView(), 300) }
