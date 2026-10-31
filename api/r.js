@@ -1,7 +1,7 @@
 // The page's door to the relay: live state and coin pages are cached a moment; launches, links and binds pass straight through.
 import { RELAY_BASE } from './_relay.js'
 export const config = { runtime: 'edge' }
-const GETS = { state: 3, coin: 4, bindmsg: 60, twinmsg: 60, snapmsg: 60, proof: 10, snapfile: 30, launches: 5, mint: -1, vanity: 5 }   // -1: never cached
+const GETS = { state: 3, coin: 4, bindmsg: 60, twinmsg: 60, snapmsg: 60, proof: 10, snapfile: 30, launches: 5, mint: -1, vanity: 5, pad: 10 }   // -1: never cached
 const POSTS = new Set(['bind', 'upload', 'send', 'twin', 'snapshot'])
 const J = { 'content-type': 'application/json' }
 export default async function handler(req) {

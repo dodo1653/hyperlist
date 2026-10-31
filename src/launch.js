@@ -2,7 +2,7 @@
 // Solana signature. Bundled to assets/launch.js and loaded only when someone opens the launcher or a twin action.
 import { Buffer } from 'buffer'
 globalThis.Buffer = globalThis.Buffer || Buffer
-import { Connection, Keypair, PublicKey, TransactionMessage, VersionedTransaction, ComputeBudgetProgram } from '@solana/web3.js'
+import { Connection, Keypair, PublicKey, TransactionMessage, VersionedTransaction, ComputeBudgetProgram, TransactionInstruction, SystemProgram } from '@solana/web3.js'
 import * as P from '@pump-fun/pump-sdk'
 import BN from 'bn.js'
 import { encodeDeployData, encodeFunctionData } from 'viem'
@@ -72,6 +72,11 @@ async function evmSend(from, tx, note) {
 const RPC = 'https://solana-rpc.publicnode.com'
 export const HYPE = new PublicKey('98sMhvDwXj1RQi5c5Mndm3vPe9cBqPrbLaufMXFNMh5g')        // HYPE on Solana, a pump.fun listed quote mint
 const TOKEN = new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA')
+// the pad: every coin trades against $HypeEdge (pump.fun's pump-coin quote); pump.fun's fee sharing splits its creator fee
+// 90 % creator / 10 % to the buyback wallet, which buys $HypeEdge and burns it
+export const HYPEEDGE = new PublicKey('6n3kqX8zh36J7uFvPnjj9FtXyaS9uEp74VeFa1tAhype'), BUYBACK = new PublicKey('GnwGgorVkKSadFPzimUhctKLdfXzKD8Y1J5AXL692PFx'), BUYBACK_BPS = 1000
+const TOKEN22 = new PublicKey('TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb'), ATA_PROGRAM = new PublicKey('ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL')
+const ataIx = (payer, owner, mint, prog) => new TransactionInstruction({ programId: ATA_PROGRAM, keys: [{ pubkey: payer, isSigner: true, isWritable: true }, { pubkey: PublicKey.findProgramAddressSync([owner.toBuffer(), prog.toBuffer(), mint.toBuffer()], ATA_PROGRAM)[0], isSigner: false, isWritable: true }, { pubkey: owner, isSigner: false, isWritable: false }, { pubkey: mint, isSigner: false, isWritable: false }, { pubkey: SystemProgram.programId, isSigner: false, isWritable: false }, { pubkey: prog, isSigner: false, isWritable: false }], data: Buffer.from([1]) })
 const LUT = new PublicKey('Hyif6eWb8x88RVrvjPfabsgRYnwkVnyByEXTVTXbUcyP')           // public lookup table with pump.fun's accounts (create + buy fit one tx)
 const conn = () => new Connection(RPC, 'confirmed')
 const acct = async (c, k) => { const a = await c.getAccountInfo(k); if (a) a.data = Buffer.from(a.data); return a }
@@ -86,6 +91,18 @@ async function buildLaunch({ user, mint, name, symbol, uri, buy, pair, feeBps = 
   // the creator's own fee on every trade, set at creation and fixed for good (pump.fun allows 0.01 % .. 3 %; 0 = pump.fun's default)
   const bps = Math.max(0, Math.min(+global.maxConfigurableCreatorFeeBps || 300, Math.round(+feeBps || 0)))
   const base = { global, mint, name, symbol, uri, creator: user, user, mayhemMode: false, ...(bps > 0 && global.creatorFeeConfigurable ? { creatorFeeBps: new BN(bps) } : {}) }
+  if (pair === 'HYPEEDGE') {                                                     // a pad launch: quoted in $HypeEdge, 90/10 split, no buy
+    const pq = await new P.OnlinePumpSdk(c).fetchPumpQuote(HYPEEDGE, { global }); if (!pq) throw new Error('$HypeEdge is not available as a pair right now')
+    const ixs = [ComputeBudgetProgram.setComputeUnitLimit({ units: 500_000 }), ComputeBudgetProgram.setComputeUnitPrice({ microLamports: 250_000 }),
+      await P.PUMP_SDK.createV2Instruction({ ...base, quoteMint: HYPEEDGE, quoteTokenProgram: TOKEN22, pumpQuote: pq.accounts }),
+      await P.PUMP_SDK.createFeeSharingConfig({ creator: user, mint, pool: null }),
+      ataIx(user, P.creatorVaultPda(P.feeSharingConfigPda(mint)), HYPEEDGE, TOKEN22),
+      await P.PUMP_SDK.updateFeeSharesV2({ authority: user, mint, currentShareholders: [user], newShareholders: [{ address: user, shareBps: 10000 - BUYBACK_BPS }, { address: BUYBACK, shareBps: BUYBACK_BPS }], quoteMint: HYPEEDGE, quoteTokenProgram: TOKEN22 })]
+    const lut = (await c.getAddressLookupTable(LUT)).value, { blockhash } = await c.getLatestBlockhash()
+    const tx = new VersionedTransaction(new TransactionMessage({ payerKey: user, recentBlockhash: blockhash, instructions: ixs }).compileToV0Message(lut ? [lut] : []))
+    if (simulate) { const sim = await c.simulateTransaction(tx, { sigVerify: false }); if (sim.value.err) throw new Error('the launch would fail on chain: ' + JSON.stringify(sim.value.err).slice(0, 140)) }
+    return tx
+  }
   let vQ = BigInt(global.initialVirtualSolReserves.toString()), quote = {}
   if (pair === 'HYPE') {
     const qc = P.PUMP_SDK.decodeQuoteControl(await acct(c, P.QUOTE_CONTROL_PDA)), listed = qc.mints.find((m) => m.mint.toBase58() === HYPE.toBase58())

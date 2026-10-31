@@ -13,6 +13,7 @@ import { b58, unb58, isKey, verify, makeRpc, curveOf, parseCurve, vaults, tokenM
 const HYPE = "98sMhvDwXj1RQi5c5Mndm3vPe9cBqPrbLaufMXFNMh5g"     // HYPE on Solana: a pump.fun listed quote mint
 import { createLaunch, twinMsg, snapMsg } from "./launch.js"
 import { createVanity } from "./vanity.js"
+import { createPad, HYPEEDGE } from "./pad.js"
 
 const PORT = +(process.env.PORT || 8798)
 const rpc = makeRpc(process.env.RPC_URL || "https://solana-rpc.publicnode.com")
@@ -64,7 +65,11 @@ function onLogs(logs) {
       } else if (d === D_TRADE && b.length >= 225) {
         // SOL pairs carry the amount in sol_amount; HYPE pairs leave it 0 and carry it (and the creator fee) in HYPE
         let amt = Number(b.readBigUInt64LE(40)) / 1e9, unit = "SOL"
-        if (!(amt > 0)) { const q = tradeQuote(b); if (!q || q.quoteMint !== HYPE) continue; amt = q.quoteAmount / 1e9; unit = "HYPE" }
+        if (!(amt > 0)) {
+          const q = tradeQuote(b); if (!q) continue
+          if (q.quoteMint === HYPEEDGE) { pad.onTrade(b, q); continue }               // a coin on the pad, quoted in $HypeEdge
+          if (q.quoteMint !== HYPE) continue; amt = q.quoteAmount / 1e9; unit = "HYPE"
+        }
         if (!(amt > 0)) continue
         const sol = amt, c = coin(b58(b.subarray(8, 40))), now = Date.now(), fee = Number(b.readBigUInt64LE(217)) / 1e9
         c.unit = unit
@@ -198,6 +203,7 @@ function bind(b) {
 }
 
 const launch = createLaunch({ dir: DIR, rpc, coins, binds })
+const pad = createPad({ dir: DIR, rpc, prices: () => prices })                       // coins trading against $HypeEdge
 const vanity = createVanity({ dir: DIR, target: +(process.env.VANITY_POOL || 8), threads: +(process.env.VANITY_THREADS || 8) })   // mints ending in "hype"
 
 // ---------------------------------------------------------------- http
@@ -212,6 +218,7 @@ http.createServer(async (req, res) => {
     const body = async () => { const ch = []; let n = 0; for await (const x of req) { n += x.length; if (n > 3_000_000) throw new Error("too large"); ch.push(x) } return JSON.parse(Buffer.concat(ch).toString() || "{}") }
     if (u.pathname === "/v1/bind" && req.method === "POST") return json(res, bind(await body()))
     if (u.pathname === "/v1/upload" && req.method === "POST") return json(res, launch.upload(await body()))
+    if (u.pathname === "/v1/pad") return json(res, await pad.get())
     if (u.pathname === "/v1/mint") return json(res, vanity.reserve())
     if (u.pathname === "/v1/vanity") return json(res, vanity.status())
     if (u.pathname === "/v1/send" && req.method === "POST") {
