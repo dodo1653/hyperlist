@@ -2,6 +2,10 @@
   "cleanUrls": true,
   "rewrites": [
     {
+      "source": "/i/50db856f9b8d057853a07397",
+      "destination": "/i/50db856f9b8d057853a07397.jpg"
+    },
+    {
       "source": "/i/94cbaa3d1ae34b60dc3d58df",
       "destination": "/i/94cbaa3d1ae34b60dc3d58df.png"
     },
