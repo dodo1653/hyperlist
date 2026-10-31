@@ -14,15 +14,16 @@ export const TOKEN = new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
 const conn = new Connection(process.env.RPC || 'https://api.mainnet-beta.solana.com', 'confirmed')
 const acct = async (k) => { const a = await conn.getAccountInfo(k); if (a) a.data = Buffer.from(a.data); return a }
 
-export async function hypeLaunchIxs({ user, mint, name, symbol, uri, hypeIn = 0 }) {
+export async function hypeLaunchIxs({ user, mint, name, symbol, uri, hypeIn = 0, feeBps = +(process.env.FEE_BPS || 0) }) {
   const global = S.PUMP_SDK.decodeGlobal(await acct(S.GLOBAL_PDA))
   const qc = S.PUMP_SDK.decodeQuoteControl(await acct(S.QUOTE_CONTROL_PDA))
   const listed = qc.mints.find((m) => m.mint.toBase58() === HYPE.toBase58()); if (!listed) throw new Error('HYPE is not a listed quote mint')
-  if (!(hypeIn > 0)) return [await S.PUMP_SDK.createV2Instruction({ mint, name, symbol, uri, creator: user, user, mayhemMode: false, quoteMint: HYPE, quoteTokenProgram: TOKEN })]
+  const fee = feeBps > 0 ? { creatorFeeBps: new BN(feeBps) } : {}                    // the creator's rate, fixed at creation
+  if (!(hypeIn > 0)) return [await S.PUMP_SDK.createV2Instruction({ mint, name, symbol, uri, creator: user, user, mayhemMode: false, quoteMint: HYPE, quoteTokenProgram: TOKEN, ...fee })]
   // tokens out on a fresh curve: k = vTok * vQuote, ~1.25 % fee taken from the quote first (2 % to stay safe)
   const vTok = BigInt(global.initialVirtualTokenReserves.toString()), vQ = BigInt(listed.initialVirtualQuoteReserves.toString())
-  const q = BigInt(Math.floor(hypeIn * 1e9)), net = (q * 98n) / 100n, out = vTok - (vTok * vQ) / (vQ + net)
-  return S.PUMP_SDK.createV2AndBuyV2Instructions({ global, mint, name, symbol, uri, creator: user, user, amount: new BN(out.toString()), quoteAmount: new BN(q.toString()), mayhemMode: false, quoteMint: HYPE, quoteTokenProgram: TOKEN, slippage: 2 })
+  const q = BigInt(Math.floor(hypeIn * 1e9)), net = (q * (10000n - 200n - BigInt(feeBps))) / 10000n, out = vTok - (vTok * vQ) / (vQ + net)
+  return S.PUMP_SDK.createV2AndBuyV2Instructions({ global, mint, name, symbol, uri, creator: user, user, amount: new BN(out.toString()), quoteAmount: new BN(q.toString()), mayhemMode: false, quoteMint: HYPE, quoteTokenProgram: TOKEN, slippage: 2, ...fee })
 }
 
 if (import.meta.url === `file:///${process.argv[1].replace(/\\/g, '/')}`) {

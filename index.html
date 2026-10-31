@@ -77,7 +77,8 @@
         <label>Description<textarea id="lDesc" maxlength="600" rows="3" placeholder="what it is, in a line or two"></textarea></label>
         <div class="pairsel"><span>Pair</span><button type="button" class="on" data-p="HYPE"><img src="assets/platforms/hyperliquid.png" alt="">HYPE</button><button type="button" data-p="SOL">SOL</button><small id="pairNote">trades against HYPE on pump.fun; creator fees are paid in HYPE</small></div>
         <div class="two"><label>X link<input id="lX" placeholder="https://x.com/…"></label><label>Website<input id="lWeb" placeholder="https://…"><small>blank = this site</small></label></div>
-        <div class="two"><label>Telegram<input id="lTg" placeholder="https://t.me/…"><small>optional</small></label><label>Your buy at launch<input id="lBuy" type="number" min="0" step="0.01" value="0"><small id="buyNote">HYPE, 0 for none</small></label></div>
+        <div class="two"><label>Creator fee<select id="lFee"><option value="100" selected>1% of every trade</option><option value="200">2%</option><option value="300">3% (the most pump.fun allows)</option><option value="50">0.5%</option><option value="0">pump.fun default (0.3%)</option></select><small>yours, on every buy and sell; fixed at launch</small></label><label>Telegram<input id="lTg" placeholder="https://t.me/…"><small>optional</small></label></div>
+        <div class="two"><label>Your buy at launch<input id="lBuy" type="number" min="0" step="0.01" value="0"><small id="buyNote">HYPE, 0 for none</small></label></div>
       </div>
     </form>
     <div class="lside card">

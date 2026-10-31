@@ -76,9 +76,11 @@ export async function hypeBalance(owner) {
   const a = await conn().getAccountInfo(ata)                                       // token account: amount is a u64 at byte 64
   return a ? Number(Buffer.from(a.data).readBigUInt64LE(64)) / 1e9 : 0
 }
-async function buildLaunch({ user, mint, name, symbol, uri, buy, pair, simulate = true }) {
+async function buildLaunch({ user, mint, name, symbol, uri, buy, pair, feeBps = 0, simulate = true }) {
   const c = conn(), global = P.PUMP_SDK.decodeGlobal(await acct(c, P.GLOBAL_PDA)), q = BigInt(Math.floor(Math.max(0, +buy || 0) * 1e9))
-  const base = { global, mint, name, symbol, uri, creator: user, user, mayhemMode: false }
+  // the creator's own fee on every trade, set at creation and fixed for good (pump.fun allows 0.01 % .. 3 %; 0 = pump.fun's default)
+  const bps = Math.max(0, Math.min(+global.maxConfigurableCreatorFeeBps || 300, Math.round(+feeBps || 0)))
+  const base = { global, mint, name, symbol, uri, creator: user, user, mayhemMode: false, ...(bps > 0 && global.creatorFeeConfigurable ? { creatorFeeBps: new BN(bps) } : {}) }
   let vQ = BigInt(global.initialVirtualSolReserves.toString()), quote = {}
   if (pair === 'HYPE') {
     const qc = P.PUMP_SDK.decodeQuoteControl(await acct(c, P.QUOTE_CONTROL_PDA)), listed = qc.mints.find((m) => m.mint.toBase58() === HYPE.toBase58())
@@ -87,7 +89,7 @@ async function buildLaunch({ user, mint, name, symbol, uri, buy, pair, simulate 
   }
   let ixs
   if (q > 0n) {
-    const vTok = BigInt(global.initialVirtualTokenReserves.toString()), out = vTok - (vTok * vQ) / (vQ + (q * 98n) / 100n)   // ~1.25 % fees, 2 % kept back
+    const vTok = BigInt(global.initialVirtualTokenReserves.toString()), keep = 10000n - 200n - BigInt(bps), out = vTok - (vTok * vQ) / (vQ + (q * keep) / 10000n)   // fees + the creator's rate + 2 % kept back
     ixs = await P.PUMP_SDK.createV2AndBuyV2Instructions({ ...base, ...quote, amount: new BN(out.toString()), quoteAmount: new BN(q.toString()), slippage: 2 })
   } else ixs = [await P.PUMP_SDK.createV2Instruction({ ...base, ...quote })]
   ixs.unshift(ComputeBudgetProgram.setComputeUnitLimit({ units: 400_000 }), ComputeBudgetProgram.setComputeUnitPrice({ microLamports: 250_000 }))
@@ -120,7 +122,7 @@ async function landed(sig) {
   throw new Error('the SOL to HYPE swap has not confirmed after 60 s (' + sig + '); nothing was launched')
 }
 
-export async function launchPump({ name, symbol, description, twitter, website, telegram, image, buy, sol, pair = 'HYPE' }, note) {
+export async function launchPump({ name, symbol, description, twitter, website, telegram, image, buy, sol, pair = 'HYPE', feeBps = 0 }, note) {
   let swap = null
   if (pair === 'HYPE' && +buy > 0) { const have = await hypeBalance(sol); if (have < +buy) { note(`pricing ${(+buy - have).toFixed(3)} HYPE in SOL…`); swap = await solToHype(new PublicKey(sol), +buy - have) } }
   note('uploading the coin\'s picture and details…')
@@ -134,7 +136,7 @@ export async function launchPump({ name, symbol, description, twitter, website, 
   if (!vanity) throw new Error(v?.error ? 'the relay is offline, try again in a minute' : 'no address ending in hype is ready yet (a new one is ground every few minutes), try again shortly')
   const mintPk = new PublicKey(vanity)
   note(`building the pump.fun launch (${pair} pair) and checking it on chain…`)
-  const tx = await buildLaunch({ user: new PublicKey(sol), mint: mintPk, name, symbol, uri: up.uri, buy, pair, simulate: !swap })
+  const tx = await buildLaunch({ user: new PublicKey(sol), mint: mintPk, name, symbol, uri: up.uri, buy, pair, feeBps, simulate: !swap })
   const w = solWallet(); let signed, signedSwap
   if (swap) {
     note(`sign once in your wallet: a swap of ${swap.sol.toFixed(4)} SOL to HYPE for your buy, then the launch`)

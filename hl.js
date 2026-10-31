@@ -234,7 +234,7 @@
       const X = await LX()
       if (!sol) { sol = await X.connectSol(); wset('wSol', sol) }
       step('meta', 'run')
-      const r = await X.launchPump({ name, symbol, description: $('lDesc').value, twitter: https_($('lX').value), website: https_($('lWeb').value), telegram: https_($('lTg').value), image: pic64, buy: +$('lBuy').value || 0, sol, pair }, (t) => { lnote(t); if (/sign the launch/.test(t)) { step('meta', 'ok'); step(cur = 'pump', 'run') } })
+      const r = await X.launchPump({ name, symbol, description: $('lDesc').value, twitter: https_($('lX').value), website: https_($('lWeb').value), telegram: https_($('lTg').value), feeBps: +$('lFee').value || 0, image: pic64, buy: +$('lBuy').value || 0, sol, pair }, (t) => { lnote(t); if (/sign the launch/.test(t)) { step('meta', 'ok'); step(cur = 'pump', 'run') } })
       step('meta', 'ok'); step('pump', 'ok'); step(cur = 'twin', 'run')
       const pumpLine = `<span>pump.fun <a href="https://pump.fun/coin/${r.mint}" target="_blank" rel="noopener">${r.mint.endsWith('hype') ? r.mint.slice(0, -4) + '<b class="sfx">hype</b>' : r.mint}</a></span>`
       let twin = null
