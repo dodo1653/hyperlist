@@ -198,7 +198,7 @@
     if (!f || !/^image\//.test(f.type)) return
     const bmp = await createImageBitmap(f), side = Math.min(bmp.width, bmp.height), cv = document.createElement('canvas'); cv.width = cv.height = 512
     cv.getContext('2d').drawImage(bmp, (bmp.width - side) / 2, (bmp.height - side) / 2, side, side, 0, 0, 512, 512)
-    pic64 = f.type === 'image/gif' && f.size < 1_800_000 ? await new Promise((ok) => { const r = new FileReader(); r.onload = () => ok(r.result); r.readAsDataURL(f) }) : cv.toDataURL('image/png')
+    pic64 = f.type === 'image/gif' && f.size < 1_800_000 ? await new Promise((ok) => { const r = new FileReader(); r.onload = () => ok(r.result); r.readAsDataURL(f) }) : cv.toDataURL('image/jpeg', 0.9)   // ~60-100 KB: indexers fetch it the instant the coin exists, and give up fast
     $('lPrev').src = pic64; $('lPrev').hidden = false
   }
   $('lFile').onchange = (e) => pick(e.target.files[0])

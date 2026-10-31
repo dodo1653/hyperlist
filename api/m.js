@@ -7,5 +7,5 @@ export default async function handler(req) {
   if (!/^[a-f0-9]{24}$/.test(id) || !['m', 'i'].includes(k)) return new Response('not found', { status: 404 })
   const r = await fetch(`${RELAY_BASE}/${k}/${id}${k === 'm' ? '.json' : ''}`).catch(() => null)
   if (!r || !r.ok) return new Response('not found', { status: 404, headers: { 'cache-control': 'no-store' } })
-  return new Response(r.body, { headers: { 'content-type': r.headers.get('content-type') || 'application/octet-stream', 'cache-control': 'public, max-age=31536000, immutable', 'access-control-allow-origin': '*' } })
+  return new Response(r.body, { headers: { 'content-type': r.headers.get('content-type') || 'application/octet-stream', 'cache-control': 'public, max-age=31536000, s-maxage=31536000, immutable', 'access-control-allow-origin': '*' } })
 }

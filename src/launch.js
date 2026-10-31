@@ -125,6 +125,10 @@ export async function launchPump({ name, symbol, description, twitter, website, 
   if (pair === 'HYPE' && +buy > 0) { const have = await hypeBalance(sol); if (have < +buy) { note(`pricing ${(+buy - have).toFixed(3)} HYPE in SOL…`); swap = await solToHype(new PublicKey(sol), +buy - have) } }
   note('uploading the coin\'s picture and details…')
   const up = await api('upload', '', { name, symbol, description, twitter, website, telegram, image, origin: location.origin }); if (up.error) throw new Error(up.error)
+  // fetch the metadata and the picture through the site once now, so they're cached at the CDN when indexers (pump.fun,
+  // Axiom, DexScreener) ask for them the second the coin is created; a slow first fetch leaves a coin with no picture
+  note('publishing the picture…')
+  for (let i = 0; i < 3; i++) { const ok = await Promise.all([fetch(up.uri, { cache: 'reload' }), fetch(up.image, { cache: 'reload' })].map((p) => p.then((r) => r.ok).catch(() => false))); if (ok.every(Boolean)) break; await sleep(1500) }
   // every launch here gets a CA ending in "hype" from the relay's stock (the relay adds that mint's signature at send)
   const v = await api('mint').catch(() => null), vanity = v?.mint || null
   if (!vanity) throw new Error(v?.error ? 'the relay is offline, try again in a minute' : 'no address ending in hype is ready yet (a new one is ground every few minutes), try again shortly')
