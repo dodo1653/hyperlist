@@ -218,7 +218,7 @@
     } else evmConnect().catch((e) => lnote(e.message, true))
   }
   let pair = 'HYPE', hypeHeld = null
-  const buyNote = () => ($('buyNote').textContent = pair === 'HYPE' ? `HYPE, 0 for none${hypeHeld != null ? ' · you hold ' + n(hypeHeld, 3) : ''}` : 'SOL, 0 for none')
+  const buyNote = () => ($('buyNote').textContent = pair === 'HYPE' ? `HYPE, 0 for none${hypeHeld != null ? ' · you hold ' + n(hypeHeld, 3) : ''} · paid in SOL if you hold less` : 'SOL, 0 for none')
   document.querySelectorAll('.pairsel button').forEach((b) => (b.onclick = () => {
     pair = b.dataset.p; document.querySelectorAll('.pairsel button').forEach((x) => x.classList.toggle('on', x === b))
     $('pairNote').textContent = pair === 'HYPE' ? 'trades against HYPE on pump.fun; creator fees are paid in HYPE' : 'trades against SOL on pump.fun, like most coins'

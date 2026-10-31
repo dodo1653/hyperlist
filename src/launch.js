@@ -76,7 +76,7 @@ export async function hypeBalance(owner) {
   const a = await conn().getAccountInfo(ata)                                       // token account: amount is a u64 at byte 64
   return a ? Number(Buffer.from(a.data).readBigUInt64LE(64)) / 1e9 : 0
 }
-async function buildLaunch({ user, mint, name, symbol, uri, buy, pair }) {
+async function buildLaunch({ user, mint, name, symbol, uri, buy, pair, simulate = true }) {
   const c = conn(), global = P.PUMP_SDK.decodeGlobal(await acct(c, P.GLOBAL_PDA)), q = BigInt(Math.floor(Math.max(0, +buy || 0) * 1e9))
   const base = { global, mint, name, symbol, uri, creator: user, user, mayhemMode: false }
   let vQ = BigInt(global.initialVirtualSolReserves.toString()), quote = {}
@@ -93,12 +93,36 @@ async function buildLaunch({ user, mint, name, symbol, uri, buy, pair }) {
   ixs.unshift(ComputeBudgetProgram.setComputeUnitLimit({ units: 400_000 }), ComputeBudgetProgram.setComputeUnitPrice({ microLamports: 250_000 }))
   const lut = (await c.getAddressLookupTable(LUT)).value, { blockhash } = await c.getLatestBlockhash()
   const tx = new VersionedTransaction(new TransactionMessage({ payerKey: user, recentBlockhash: blockhash, instructions: ixs }).compileToV0Message(lut ? [lut] : []))
+  if (!simulate) return tx                                                         // checked later, once the swap has landed
   const sim = await c.simulateTransaction(tx, { sigVerify: false })
   if (sim.value.err) { const code = JSON.stringify(sim.value.err).match(/Custom":(\d+)/)?.[1]; throw new Error(code === '6010' ? 'not enough ' + (pair === 'HYPE' ? 'HYPE' : 'SOL') + ' for that buy' : 'the launch would fail on chain: ' + JSON.stringify(sim.value.err).slice(0, 120)) }
   return tx
 }
+// a HYPE-pair buy paid in SOL, like pump.fun's own page: Jupiter swaps exactly the HYPE that's missing (plus 0.3 %).
+// It can't share the launch's transaction (too large together), so the wallet signs both at once and the swap lands first.
+const JUP = 'https://lite-api.jup.ag/swap/v1', WSOL = 'So11111111111111111111111111111111111111112'
+async function solToHype(user, hype) {
+  const raw = Math.ceil(hype * 1.003 * 1e9)
+  const quote = await (await fetch(`${JUP}/quote?inputMint=${WSOL}&outputMint=${HYPE.toBase58()}&amount=${raw}&swapMode=ExactOut&slippageBps=100`)).json()
+  if (quote.error || !quote.inAmount) throw new Error('no SOL to HYPE route right now: ' + (quote.error || 'try again'))
+  const r = await (await fetch(`${JUP}/swap`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ quoteResponse: quote, userPublicKey: user.toBase58(), wrapAndUnwrapSol: true, dynamicComputeUnitLimit: true, prioritizationFeeLamports: { priorityLevelWithMaxLamports: { maxLamports: 400000, priorityLevel: 'high' } } }) })).json()
+  if (!r.swapTransaction) throw new Error('the SOL to HYPE swap could not be built: ' + (r.error || 'try again'))
+  return { tx: VersionedTransaction.deserialize(Buffer.from(r.swapTransaction, 'base64')), sol: +quote.inAmount / 1e9 }
+}
+async function landed(sig) {
+  const c = conn()
+  for (let i = 0; i < 60; i++) {
+    const st = (await c.getSignatureStatuses([sig])).value[0]
+    if (st?.err) throw new Error('the SOL to HYPE swap failed on chain; nothing was launched')
+    if (st && (st.confirmationStatus === 'confirmed' || st.confirmationStatus === 'finalized')) return
+    await sleep(1000)
+  }
+  throw new Error('the SOL to HYPE swap has not confirmed after 60 s (' + sig + '); nothing was launched')
+}
+
 export async function launchPump({ name, symbol, description, twitter, website, telegram, image, buy, sol, pair = 'HYPE' }, note) {
-  if (pair === 'HYPE' && +buy > 0) { const have = await hypeBalance(sol); if (have < +buy) throw new Error(`your wallet holds ${have.toFixed(3)} HYPE on Solana; lower the buy or add HYPE`) }
+  let swap = null
+  if (pair === 'HYPE' && +buy > 0) { const have = await hypeBalance(sol); if (have < +buy) { note(`pricing ${(+buy - have).toFixed(3)} HYPE in SOL…`); swap = await solToHype(new PublicKey(sol), +buy - have) } }
   note('uploading the coin\'s picture and details…')
   const up = await api('upload', '', { name, symbol, description, twitter, website, telegram, image, origin: location.origin }); if (up.error) throw new Error(up.error)
   // every launch here gets a CA ending in "hype" from the relay's stock (the relay adds that mint's signature at send)
@@ -106,9 +130,22 @@ export async function launchPump({ name, symbol, description, twitter, website, 
   if (!vanity) throw new Error(v?.error ? 'the relay is offline, try again in a minute' : 'no address ending in hype is ready yet (a new one is ground every few minutes), try again shortly')
   const mintPk = new PublicKey(vanity)
   note(`building the pump.fun launch (${pair} pair) and checking it on chain…`)
-  const tx = await buildLaunch({ user: new PublicKey(sol), mint: mintPk, name, symbol, uri: up.uri, buy, pair })
-  note('sign the launch in your Solana wallet')
-  const signed = await solWallet().signTransaction(tx)
+  const tx = await buildLaunch({ user: new PublicKey(sol), mint: mintPk, name, symbol, uri: up.uri, buy, pair, simulate: !swap })
+  const w = solWallet(); let signed, signedSwap
+  if (swap) {
+    note(`sign once in your wallet: a swap of ${swap.sol.toFixed(4)} SOL to HYPE for your buy, then the launch`)
+    if (w.signAllTransactions) [signedSwap, signed] = await w.signAllTransactions([swap.tx, tx])
+    else { signedSwap = await w.signTransaction(swap.tx); signed = await w.signTransaction(tx) }
+    note('swapping SOL to HYPE…')
+    const sw = await api('send', '', { tx: Buffer.from(signedSwap.serialize()).toString('base64') }); if (sw.error) throw new Error('the SOL to HYPE swap was refused: ' + sw.error)
+    await landed(sw.signature)
+    note('checking the launch on chain…')
+    const sim = await conn().simulateTransaction(signed, { sigVerify: false })
+    if (sim.value.err) throw new Error('the swap went through (the HYPE is in your wallet) but the launch check failed: ' + JSON.stringify(sim.value.err).slice(0, 120) + '. Press Launch again; it will use that HYPE')
+  } else {
+    note('sign the launch in your Solana wallet')
+    signed = await w.signTransaction(tx)
+  }
   note('sending to Solana…')
   const s = await api('send', '', { tx: Buffer.from(signed.serialize()).toString('base64'), vanity }); if (s.error) throw new Error(s.error)
   const m = mintPk.toBase58()
