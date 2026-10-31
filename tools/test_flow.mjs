@@ -73,7 +73,7 @@ check(!S.entries.find((x) => x.account === carol.toLowerCase()), 'carol (0 balan
 const png = 'data:image/png;base64,' + Buffer.from([0x89, 0x50, 0x4e, 0x47, 13, 10, 26, 10, 0, 0, 0, 0]).toString('base64')
 const up = L.upload({ name: 'HypeEdge', symbol: 'hypeedge', image: png, origin: 'https://hyperlist.vercel.app', description: 'x' })
 check(up.uri === `https://hyperlist.vercel.app/m/${up.id}.json`, 'metadata uri on the site domain')
-check(JSON.parse(L.serve('m', up.id).body).symbol === 'HYPEEDGE' && L.serve('i', up.id).type === 'image/png', 'served back')
+check(JSON.parse(L.serve('m', up.id).body).symbol === 'hypeedge' && L.serve('i', up.id).type === 'image/png', 'served back')
 await throws(Promise.resolve().then(() => L.upload({ name: 'x', symbol: 'BAD TICKER', image: png })), 'ticker with a space', /1 to 10/)
 
 console.log(`${ok} passed, ${bad} failed`)
