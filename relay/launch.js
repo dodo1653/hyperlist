@@ -25,11 +25,11 @@ export function createLaunch({ dir, rpc, coins, binds }) {
 
   // the coin's launch JSON + picture, kept by the relay and served under the site's own domain (/m/<id>.json, /i/<id>)
   function upload(b) {
-    const name = s(b.name, 32), symbol = s(b.symbol, 10).replace(/^\$+/, "").toUpperCase(), description = s(b.description, 600)
+    const name = s(b.name, 32), symbol = s(b.symbol, 10).replace(/^\$+/, ""), description = s(b.description, 600)
     if (!name || !symbol) throw new Error("name and ticker are required")
-    if (!/^[A-Z0-9]{1,10}$/.test(symbol)) throw new Error("tickers are 1 to 10 letters or digits")
+    if (!/^[A-Za-z0-9]{1,10}$/.test(symbol)) throw new Error("tickers are 1 to 10 letters or digits")
     const hour = Date.now() - 3600_000
-    for (const c of coins.values()) if (c.last > hour && c.symbol && c.symbol.toUpperCase() === symbol) throw new Error(`$${c.symbol} traded on pump.fun in the last hour. pick a ticker that's yours`)
+    for (const c of coins.values()) if (c.last > hour && c.symbol && c.symbol.toUpperCase() === symbol.toUpperCase()) throw new Error(`$${c.symbol} traded on pump.fun in the last hour. pick a ticker that's yours`)
     const origin = /^https:\/\/[a-z0-9.-]{3,80}$/.test(String(b.origin || "")) ? b.origin : "https://hype-edge.vercel.app"
     const m = String(b.image || "").match(/^data:(image\/(png|jpeg|webp|gif));base64,(.+)$/)
     if (!m) throw new Error("the image must be png, jpg, webp or gif")

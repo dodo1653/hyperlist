@@ -134,7 +134,7 @@ footer { max-width: 1180px; margin: 50px auto 0; padding: 26px 20px 40px; displa
 .fields { display: grid; gap: 12px; } .fields .two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .fields label { display: grid; gap: 6px; align-content: start; font: 500 11px 'Geist Mono'; letter-spacing: .08em; text-transform: uppercase; color: var(--t3); } .fields label small { text-transform: none; letter-spacing: 0; font-size: 11px; color: var(--t3); }
 .fields input, .fields textarea { background: var(--s0); border: 1px solid var(--l1); border-radius: 11px; color: var(--ink); font: 500 14.5px Geist; padding: 10px 12px; outline: 0; resize: vertical; text-transform: none; letter-spacing: 0; } .fields input:focus, .fields textarea:focus { border-color: var(--mint2); }
-#lSym { font-family: 'Geist Mono'; text-transform: uppercase; }
+#lSym { font-family: 'Geist Mono'; text-transform: none; }
 .wal { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .wb { display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 13px; border: 1px solid var(--l1); background: var(--s0); color: var(--ink); cursor: pointer; text-align: left; min-width: 0; } .wb:hover { border-color: var(--mint2); }
 .wb img { width: 30px; height: 30px; border-radius: 8px; flex: none; } .wb span { min-width: 0; } .wb b { display: block; font: 600 13.5px Geist; } .wb small { display: block; font: 500 11.5px 'Geist Mono'; color: var(--dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .wb.on { border-color: rgba(151,252,228,.4); } .wb.on small { color: var(--accent); }

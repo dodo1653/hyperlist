@@ -7,7 +7,7 @@ Launch on pump.fun. Land on Hyperliquid. pump.fun coins with a HyperEVM twin fro
 
 1. Launch (with the 38 s film)
 
-$HYPEEDGE is live.
+$HypeEdge is live.
 
 Launch on pump.fun. Land on Hyperliquid.
 
@@ -72,9 +72,9 @@ Ground ahead of time on our own machine. The key signs the create once, then pum
 ---
 
 Notes
-- $HYPEEDGE's CA ends in "hype" (from the relay's vanity stock). Post 6 only after the create tx confirms.
+- $HypeEdge's CA ends in "hype" (from the relay's vanity stock). Post 6 only after the create tx confirms.
 - Every number above is real: 0.30 % read from each trade event on chain; the auction from api.hyperliquid.xyz (spotDeployState); gas figures from the contract tests.
-- Post 1 carries the video; post 2 a screenshot of the coin page's three chains row once $HYPEEDGE and its twin are live (the receipt).
+- Post 1 carries the video; post 2 a screenshot of the coin page's three chains row once $HypeEdge and its twin are live (the receipt).
 
 ---
 
@@ -82,7 +82,7 @@ Notes
 
 Rules: short lines, the brand word in the slogan, one feature per post, a running number with its receipt, link on every post.
 
-- $HYPEEDGE is live.
+- $HypeEdge is live.
   <CA>
 - Every coin launched on HypeEdge gets a CA that ends in hype.
   hype-edge.vercel.app
