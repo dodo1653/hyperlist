@@ -12,7 +12,7 @@
 <link rel="stylesheet" href="hl.css">
 <link rel="stylesheet" href="orbit.css">
 <link rel="stylesheet" href="https://unpkg.com/lenis@1.1.13/dist/lenis.css">
-<script>try { var t = localStorage.getItem("hd-theme") || (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark"); document.documentElement.dataset.theme = t } catch (e) { document.documentElement.dataset.theme = "dark" }</script>
+<script>try { document.documentElement.dataset.theme = localStorage.getItem("hd-theme") || "light" } catch (e) { document.documentElement.dataset.theme = "light" }</script>
 </head>
 <body>
 <div class="navwrap"><header class="top">
