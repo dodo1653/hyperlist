@@ -1,8 +1,28 @@
 {
   "cleanUrls": true,
   "rewrites": [
-    { "source": "/m/:id.json", "destination": "/api/m?k=m&id=:id" },
-    { "source": "/i/:id", "destination": "/api/m?k=i&id=:id" }
+    {
+      "source": "/i/94cbaa3d1ae34b60dc3d58df",
+      "destination": "/i/94cbaa3d1ae34b60dc3d58df.png"
+    },
+    {
+      "source": "/m/:id.json",
+      "destination": "/api/m?k=m&id=:id"
+    },
+    {
+      "source": "/i/:id",
+      "destination": "/api/m?k=i&id=:id"
+    }
   ],
-  "headers": [{ "source": "/assets/(.*)", "headers": [{ "key": "cache-control", "value": "public, max-age=3600" }] }]
+  "headers": [
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        {
+          "key": "cache-control",
+          "value": "public, max-age=3600"
+        }
+      ]
+    }
+  ]
 }
