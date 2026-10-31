@@ -14,7 +14,7 @@ Launch on pump.fun. Land on Hyperliquid.
 One flow puts your coin on pump.fun and deploys its twin on HyperEVM, linked by your Solana signature. Holders claim the twin. Every trade's creator fee fills a live meter toward a HyperCore ticker.
 
 hype-edge.vercel.app
-CA: ACp5Fo5sg1zJ3cds2RzPRFL2QCPS7cw73qff9orKhype
+CA: <CA>
 
 ---
 
@@ -56,7 +56,7 @@ hype-edge.vercel.app
 5. CA
 
 Our official CA:
-ACp5Fo5sg1zJ3cds2RzPRFL2QCPS7cw73qff9orKhype
+<CA>
 
 ---
 
@@ -64,7 +64,7 @@ ACp5Fo5sg1zJ3cds2RzPRFL2QCPS7cw73qff9orKhype
 
 Every coin launched on HypeEdge gets an address ending in hype.
 
-Ours: ACp5Fo5sg1zJ3cds2RzPRFL2QCPS7cw73qff9orKhype
+Ours: <CA>
 
 Ground ahead of time on our own machine. The key signs the create once, then pump.fun owns the mint.
 <solscan create tx>
@@ -83,7 +83,7 @@ Notes
 Rules: short lines, the brand word in the slogan, one feature per post, a running number with its receipt, link on every post.
 
 - $HypeEdge is live.
-  ACp5Fo5sg1zJ3cds2RzPRFL2QCPS7cw73qff9orKhype
+  <CA>
 - Every coin launched on HypeEdge gets a CA that ends in hype.
   hype-edge.vercel.app
 - pump.fun pairs with HYPE now. HypeEdge launches straight into it, and your twin lands on Hyperliquid.
