@@ -7,7 +7,12 @@ import * as P from '@pump-fun/pump-sdk'
 import BN from 'bn.js'
 import { encodeDeployData, encodeFunctionData } from 'viem'
 
-const api = (path, q = '', body) => fetch(`/api/r?path=${path}${q}`, body ? { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) } : { cache: 'no-store' }).then((r) => r.json())
+// the relay through the site: never assumes a JSON body (an empty or HTML answer becomes a readable error)
+const api = async (path, q = '', body) => {
+  const r = await fetch(`/api/r?path=${path}${q}`, body ? { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) } : { cache: 'no-store' })
+  const t = await r.text()
+  try { return JSON.parse(t) } catch { return { error: r.ok ? 'the relay answered with nothing, try again in a moment' : `the relay is unreachable (${r.status}); is it running and is the tunnel up?` } }
+}
 const sleep = (ms) => new Promise((ok) => setTimeout(ok, ms))
 const B58 = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'
 const b58 = (u8) => { let x = 0n; for (const b of u8) x = x * 256n + BigInt(b); let s = ''; while (x > 0n) { s = B58[Number(x % 58n)] + s; x /= 58n } for (const b of u8) { if (b) break; s = '1' + s } return s }

@@ -2,7 +2,10 @@
 (() => {
   const $ = (id) => document.getElementById(id)
   const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]))
-  const api = (path, q = '', body) => fetch(`/api/r?path=${path}${q}`, body ? { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) } : { cache: 'no-store' }).then((r) => r.json())
+  const api = async (path, q = '', body) => {                     // never assumes a JSON body: an empty answer becomes an error object
+    const r = await fetch(`/api/r?path=${path}${q}`, body ? { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) } : { cache: 'no-store' })
+    const t = await r.text(); try { return JSON.parse(t) } catch { return { error: r.ok ? 'the relay answered with nothing, try again' : `the relay is unreachable (${r.status})` } }
+  }
   const pic = (u) => (u ? `/api/img?u=${encodeURIComponent(u)}` : '')
   const n = (v, d = 2) => (v == null ? '–' : Number(v).toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d }))
   const usd = (v) => (v == null ? '–' : '$' + Math.round(v).toLocaleString('en-US'))
