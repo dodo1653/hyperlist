@@ -97,10 +97,10 @@ async function buildLaunch({ user, mint, name, symbol, uri, buy, pair }) {
   if (sim.value.err) { const code = JSON.stringify(sim.value.err).match(/Custom":(\d+)/)?.[1]; throw new Error(code === '6010' ? 'not enough ' + (pair === 'HYPE' ? 'HYPE' : 'SOL') + ' for that buy' : 'the launch would fail on chain: ' + JSON.stringify(sim.value.err).slice(0, 120)) }
   return tx
 }
-export async function launchPump({ name, symbol, description, twitter, image, buy, sol, pair = 'HYPE' }, note) {
+export async function launchPump({ name, symbol, description, twitter, website, telegram, image, buy, sol, pair = 'HYPE' }, note) {
   if (pair === 'HYPE' && +buy > 0) { const have = await hypeBalance(sol); if (have < +buy) throw new Error(`your wallet holds ${have.toFixed(3)} HYPE on Solana; lower the buy or add HYPE`) }
   note('uploading the coin\'s picture and details…')
-  const up = await api('upload', '', { name, symbol, description, twitter, image, origin: location.origin }); if (up.error) throw new Error(up.error)
+  const up = await api('upload', '', { name, symbol, description, twitter, website, telegram, image, origin: location.origin }); if (up.error) throw new Error(up.error)
   // every launch here gets a CA ending in "hype" from the relay's stock (the relay adds that mint's signature at send)
   const v = await api('mint').catch(() => null), vanity = v?.mint || null
   if (!vanity) throw new Error(v?.error ? 'the relay is offline, try again in a minute' : 'no address ending in hype is ready yet (a new one is ground every few minutes), try again shortly')

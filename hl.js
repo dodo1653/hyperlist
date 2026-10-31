@@ -203,6 +203,7 @@
   }
   $('lFile').onchange = (e) => pick(e.target.files[0])
   const drop = $('lPic'); drop.ondragover = (e) => { e.preventDefault(); drop.classList.add('drag') }; drop.ondragleave = () => drop.classList.remove('drag'); drop.ondrop = (e) => { e.preventDefault(); drop.classList.remove('drag'); pick(e.dataTransfer.files[0]) }
+  const https_ = (v) => { v = String(v || '').trim(); return v && !/^https?:\/\//i.test(v) ? 'https://' + v : v }   // links typed without https:// still count
   $('lSym').oninput = (e) => (e.target.value = e.target.value.replace(/[^A-Za-z0-9]/g, '').slice(0, 10))
   const wset = (id, a) => { const b = $(id); b.classList.add('on'); b.querySelector('small').textContent = short(a) }
   const lnote = (t, bad) => { $('lNote').textContent = t; $('lNote').classList.toggle('err', !!bad) }
@@ -233,7 +234,7 @@
       const X = await LX()
       if (!sol) { sol = await X.connectSol(); wset('wSol', sol) }
       step('meta', 'run')
-      const r = await X.launchPump({ name, symbol, description: $('lDesc').value, twitter: $('lX').value, image: pic64, buy: +$('lBuy').value || 0, sol, pair }, (t) => { lnote(t); if (/sign the launch/.test(t)) { step('meta', 'ok'); step(cur = 'pump', 'run') } })
+      const r = await X.launchPump({ name, symbol, description: $('lDesc').value, twitter: https_($('lX').value), website: https_($('lWeb').value), telegram: https_($('lTg').value), image: pic64, buy: +$('lBuy').value || 0, sol, pair }, (t) => { lnote(t); if (/sign the launch/.test(t)) { step('meta', 'ok'); step(cur = 'pump', 'run') } })
       step('meta', 'ok'); step('pump', 'ok'); step(cur = 'twin', 'run')
       const pumpLine = `<span>pump.fun <a href="https://pump.fun/coin/${r.mint}" target="_blank" rel="noopener">${r.mint.endsWith('hype') ? r.mint.slice(0, -4) + '<b class="sfx">hype</b>' : r.mint}</a></span>`
       let twin = null
