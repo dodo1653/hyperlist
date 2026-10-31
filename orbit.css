@@ -61,3 +61,19 @@ footer { padding-bottom: 96px; }
 :root[data-theme="light"] .dock { background: rgba(255,255,255,.9); border-color: #dbe6e3; box-shadow: 0 10px 30px rgba(11,28,25,.08); }
 :root[data-theme="light"] .dock a { color: #6b827e; } :root[data-theme="light"] .dock a:hover, :root[data-theme="light"] .dock a.on { background: #edf3f1; color: #0b1c19; }
 :root[data-theme="light"] .om { background: #fff; box-shadow: 0 1px 2px rgba(11,28,25,.04), 0 12px 32px rgba(11,28,25,.06); }
+
+/* platform logos on the first screen: where the coin trades, and where it lands */
+.orbit-rail { margin-top: 34px; display: grid; justify-items: center; gap: 12px; }
+.orbit-rail .rl { font: 500 11px 'Geist Mono', monospace; letter-spacing: .08em; text-transform: uppercase; color: #7d7d7d; }
+.orbit-rail .logos { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 8px; }
+.orbit-rail .lg { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px 6px 6px; border-radius: 999px; border: 1px solid #222; background: rgba(14,14,14,.8); color: #e8e8e8; font: 500 13px Geist, sans-serif; backdrop-filter: blur(6px); }
+.orbit-rail .lg img { width: 22px; height: 22px; border-radius: 6px; }
+.orbit-rail .lg.hl { border-color: rgba(94,240,207,.45); color: #fff; box-shadow: 0 0 0 3px rgba(94,240,207,.08); }
+.orbit-rail .to { width: 26px; height: 10px; fill: none; stroke: #5ef0cf; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+:root[data-theme="light"] .orbit-rail .rl { color: #6b827e; }
+:root[data-theme="light"] .orbit-rail .lg { background: rgba(255,255,255,.88); border-color: #dbe6e3; color: #0b1c19; }
+:root[data-theme="light"] .orbit-rail .lg.hl { border-color: rgba(8,128,107,.45); box-shadow: 0 0 0 3px rgba(8,128,107,.08); }
+:root[data-theme="light"] .orbit-rail .to { stroke: #08806b; }
+@media (max-width: 560px) { .orbit-rail .lg { font-size: 12px; padding: 5px 10px 5px 5px; } .orbit-rail .lg img { width: 20px; height: 20px; } }
+.orbit-rail .rl { padding: 3px 9px; border-radius: 6px; background: rgba(0,0,0,.7); }
+:root[data-theme="light"] .orbit-rail .rl { background: rgba(247,250,249,.85); }

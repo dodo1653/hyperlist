@@ -40,9 +40,10 @@
     }
     g.globalCompositeOperation = 'source-over'
     // keep the words readable: a soft black oval in the middle
-    const grd = g.createRadialGradient(cx, cy, 0, cx, cy, Math.min(W, H) * 0.42)
+    const tall = H > W * 1.2, mr = tall ? Math.max(W, H * 0.5) * 0.62 : Math.min(W, H) * 0.42           // phones: a taller clear zone
+    const grd = g.createRadialGradient(cx, cy, 0, cx, cy, mr)
     grd.addColorStop(0, `rgba(${P.bg},.92)`); grd.addColorStop(0.7, `rgba(${P.bg},.55)`); grd.addColorStop(1, `rgba(${P.bg},0)`)
-    g.fillStyle = grd; g.beginPath(); g.ellipse(cx, cy, W * 0.42, H * 0.3, 0, 0, 6.2832); g.fill()
+    g.fillStyle = grd; g.beginPath(); g.ellipse(cx, cy, tall ? W * 0.62 : W * 0.42, tall ? H * 0.34 : H * 0.3, 0, 0, 6.2832); g.fill()
     if (!still) requestAnimationFrame(frame)
   }
   build(); addEventListener('resize', build); requestAnimationFrame(frame)
