@@ -10,6 +10,7 @@
 <link rel="icon" href="assets/icon.png">
 <link rel="stylesheet" href="assets/fonts.css">
 <link rel="stylesheet" href="hl.css">
+<link rel="stylesheet" href="orbit.css">
 <script>try { var t = localStorage.getItem("hd-theme") || (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark"); document.documentElement.dataset.theme = t } catch (e) { document.documentElement.dataset.theme = "dark" }</script>
 </head>
 <body>
@@ -21,11 +22,28 @@
   <span class="ca" id="ca">CA soon</span>
 </header></div>
 
+<nav class="dock" aria-label="Sections">
+  <a href="#top"><svg viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg><small>Home</small></a>
+  <a href="#launch"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5"/><path d="M12 8v8M8 12h8"/></svg><small>Launch</small></a>
+  <a href="#check"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><small>Check</small></a>
+  <a href="#race"><svg viewBox="0 0 24 24"><path d="M4 20V10m8 10V4m8 16v-7"/></svg><small>Race</small></a>
+  <a href="#how"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg><small>How</small></a>
+</nav>
+
 <main>
-<section class="hero">
-  <div class="eyebrow"><img src="assets/platforms/pumpfun.png" alt=""><span>pump.fun</span><svg viewBox="0 0 20 8"><path d="M0 4h17M14 1l3 3-3 3"/></svg><img src="assets/platforms/hyperliquid.png" alt=""><span>Hyperliquid</span></div>
-  <h1>Launch on pump.fun.<br>Land on <em>Hyperliquid</em>.</h1>
-  <p class="sub">One flow puts your coin on pump.fun and deploys its twin on HyperEVM, linked by your signature. Holders claim the twin, and every trade's creator fee counts toward its HyperCore ticker, live.</p>
+<section class="orbit" id="top">
+  <canvas id="orbitCv" aria-hidden="true"></canvas>
+  <div class="orbit-in">
+    <div class="wm">hypeedge</div>
+    <h1 class="ol">Launch on pump.fun. Land on Hyperliquid.</h1>
+    <a class="open" href="#launch">Launch <span aria-hidden="true">&#8599;</span></a>
+    <a class="pill" href="#check"><span class="pl">HIP-1 ticker, live</span><b><span id="oGas">&ndash;</span> HYPE</b><span class="go">Check a coin &#8599;</span></a>
+    <a class="pill" href="#hlist"><b>$HYPEEDGE</b><span class="pl">CA</span><span class="mono" id="oCa">soon</span><span class="go">Chart &#8599;</span></a>
+  </div>
+</section>
+
+<section class="hero live-stage">
+  <h2 class="lst">Every pump.fun creator fee, read live, against the price of a Hyperliquid ticker.</h2>
   <div class="stage" id="stage">
     <svg class="wires" id="wires" viewBox="0 0 1180 460" preserveAspectRatio="none"></svg>
     <div class="colhead l"><img src="assets/platforms/pumpfun.png" alt="">pump.fun creator fees · last hour</div>
@@ -45,7 +63,6 @@
   <div class="rail"><span class="rl">every trade pays the creator, wherever it's placed</span>
     <span class="logos"><span class="lg"><img src="assets/platforms/pumpfun.png" alt="">pump.fun</span><span class="lg"><img src="assets/platforms/axiom.png" alt="">Axiom</span><span class="lg"><img src="assets/platforms/gmgn.png" alt="">GMGN</span><span class="lg"><img src="assets/platforms/fomo.png" alt="">Fomo</span><span class="lg"><img src="assets/platforms/terminal.png" alt="">Terminal</span>
     <svg class="to" viewBox="0 0 28 10"><path d="M0 5h24M20 1l4 4-4 4"/></svg><span class="lg hl"><img src="assets/platforms/hyperliquid.png" alt="">Hyperliquid ticker</span></span></div>
-  <div class="cta"><a class="btn" href="#launch">Launch on both</a><a class="btn ghost" href="#check">Check your coin</a></div>
   <div class="strip"><span><b id="sFees">–</b> SOL paid to pump.fun creators in the last hour</span><i></i><span><b id="sTrades">–</b> trades read</span><i></i><span><b id="sFloor">–</b> ticker floor</span></div>
 </section>
 
@@ -108,4 +125,5 @@
 </main>
 <div class="toast" id="toast" hidden></div>
 <script src="hl.js"></script>
+<script src="orbit.js" defer></script>
 </body></html>

@@ -75,3 +75,30 @@ Notes
 - $HYPEEDGE's CA ends in "hype" (from the relay's vanity stock). Post 6 only after the create tx confirms.
 - Every number above is real: 0.30 % read from each trade event on chain; the auction from api.hyperliquid.xyz (spotDeployState); gas figures from the contract tests.
 - Post 1 carries the video; post 2 a screenshot of the coin page's three chains row once $HYPEEDGE and its twin are live (the receipt).
+
+---
+
+# Live posting run, in the $FUN style (2026-10-31): one post every 3 minutes for the first hour, each with an image
+
+Rules: short lines, the brand word in the slogan, one feature per post, a running number with its receipt, link on every post.
+
+- $HYPEEDGE is live.
+  <CA>
+- Every coin launched on HypeEdge gets a CA that ends in hype.
+  hyperlistchain.vercel.app
+- pump.fun pairs with HYPE now. HypeEdge launches straight into it, and your twin lands on Hyperliquid.
+  hyperlistchain.vercel.app
+- The edge is simple: launch on pump.fun, land on Hyperliquid.
+  hyperlistchain.vercel.app
+- Creator fees fill the meter live. <x>% of a Hyperliquid ticker so far.
+  <screenshot of the meter>
+- Every HypeEdge coin gets a twin on HyperEVM. Same name, same ticker, 1B supply, no admin keys.
+  <hyperevmscan link>
+- Holders claim the twin from one signed snapshot. The root goes on chain once, and nobody can change it.
+- Paste any pump.fun CA and see how far its fees are from a Hyperliquid ticker.
+  hyperlistchain.vercel.app
+- Meter update: <x>% of a ticker. Next update loading...
+- Do you feel the edge?
+  hyperlistchain.vercel.app
+
+Only post numbers the site or the chain shows at that moment (meter %, twin address, snapshot root).

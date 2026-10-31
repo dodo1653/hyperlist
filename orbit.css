@@ -1,0 +1,26 @@
+/* The first screen: black, the hypeedge wordmark in a heavy rounded face, halftone rings orbiting it, one line,
+   one button, two live pills. Always dark (it's a stage), whatever the page theme. Plus the floating dock. */
+@font-face { font-family: 'Fredoka'; font-weight: 300 700; font-display: swap; src: url(assets/fonts/Fredoka.ttf) format('truetype'); }
+.orbit { position: relative; min-height: 100svh; margin-top: -78px; padding: 120px 16px 130px; display: grid; place-items: center; background: #000; color: #fff; overflow: hidden; isolation: isolate; }
+.orbit canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; }
+.orbit-in { display: flex; flex-direction: column; align-items: center; text-align: center; max-width: 760px; }
+.orbit .wm { font: 700 clamp(64px, 13vw, 168px)/.9 Fredoka, Geist, sans-serif; letter-spacing: -.035em; color: #fff; }
+.orbit .ol { font: 600 clamp(20px, 2.6vw, 32px)/1.2 Geist, sans-serif; letter-spacing: -.02em; margin: clamp(26px, 3.4vw, 44px) 0 0; color: #fff; }
+.orbit .open { margin-top: 28px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-width: min(270px, 80vw); height: 46px; border-radius: 10px; background: #f4f4f4; color: #0a0a0a; font: 600 15px Geist, sans-serif; letter-spacing: .06em; text-decoration: none; transition: transform .15s ease, background .15s ease; }
+.orbit .open:hover { background: #fff; transform: translateY(-1px); }
+.orbit .pill { margin-top: 14px; display: inline-flex; align-items: center; gap: 12px; max-width: 100%; padding: 6px 6px 6px 16px; border-radius: 999px; border: 1px solid #262626; background: rgba(12, 12, 12, .82); color: #fff; font: 500 13px Geist, sans-serif; text-decoration: none; backdrop-filter: blur(6px); }
+.orbit .pill + .pill { margin-top: 10px; }
+.orbit .pill b { font-weight: 600; white-space: nowrap; } .orbit .pill .pl { color: #8d8d8d; white-space: nowrap; } .orbit .pill .mono { font: 500 12.5px 'Geist Mono', monospace; color: #d9d9d9; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.orbit .pill .go { padding: 7px 12px; border-radius: 999px; background: #1c1c1c; font-weight: 600; white-space: nowrap; }
+.orbit .pill:hover .go { background: #262626; }
+.live-stage .lst { font: 600 clamp(22px, 3vw, 34px)/1.15 Geist; letter-spacing: -.03em; max-width: 760px; margin: 0 auto 8px; }
+
+/* the dock: a floating row of icons at the bottom, like a phone's */
+.dock { position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%); z-index: 40; display: flex; gap: 4px; padding: 6px; border-radius: 18px; border: 1px solid #262626; background: rgba(10, 10, 10, .86); backdrop-filter: blur(14px); }
+.dock a { display: grid; justify-items: center; gap: 3px; width: 54px; padding: 7px 0 6px; border-radius: 12px; color: #a3a3a3; text-decoration: none; }
+.dock a:hover, .dock a.on { background: #1f1f1f; color: #fff; }
+.dock svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.dock small { font: 500 10px Geist, sans-serif; }
+.top nav { display: none; }
+footer { padding-bottom: 96px; }
+@media (max-width: 560px) { .orbit .pill { gap: 8px; font-size: 12px; padding-left: 12px; } .orbit .pill .pl:first-child { display: none; } .dock a { width: 50px; } }
