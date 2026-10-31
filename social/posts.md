@@ -13,7 +13,7 @@ Launch on pump.fun. Land on Hyperliquid.
 
 One flow puts your coin on pump.fun and deploys its twin on HyperEVM, linked by your Solana signature. Holders claim the twin. Every trade's creator fee fills a live meter toward a HyperCore ticker.
 
-hyperlistchain.vercel.app
+hyperedgechain.vercel.app
 CA: <CA>
 
 ---
@@ -39,7 +39,7 @@ Every pump.fun trade pays the coin's creator 0.30 %.
 A ticker on Hyperliquid's order book costs one HIP-1 auction: 31 hours, falling to a 500 HYPE floor (about $45K right now).
 
 HypeEdge reads both live, for any coin. Paste a CA:
-hyperlistchain.vercel.app
+hyperedgechain.vercel.app
 
 ---
 
@@ -49,7 +49,7 @@ pump.fun brought Hyperliquid perps to its app this week.
 
 HypeEdge goes the other way: coins born on pump.fun, with a twin on Hyperliquid from the first minute.
 
-hyperlistchain.vercel.app
+hyperedgechain.vercel.app
 
 ---
 
@@ -85,20 +85,20 @@ Rules: short lines, the brand word in the slogan, one feature per post, a runnin
 - $HYPEEDGE is live.
   <CA>
 - Every coin launched on HypeEdge gets a CA that ends in hype.
-  hyperlistchain.vercel.app
+  hyperedgechain.vercel.app
 - pump.fun pairs with HYPE now. HypeEdge launches straight into it, and your twin lands on Hyperliquid.
-  hyperlistchain.vercel.app
+  hyperedgechain.vercel.app
 - The edge is simple: launch on pump.fun, land on Hyperliquid.
-  hyperlistchain.vercel.app
+  hyperedgechain.vercel.app
 - Creator fees fill the meter live. <x>% of a Hyperliquid ticker so far.
   <screenshot of the meter>
 - Every HypeEdge coin gets a twin on HyperEVM. Same name, same ticker, 1B supply, no admin keys.
   <hyperevmscan link>
 - Holders claim the twin from one signed snapshot. The root goes on chain once, and nobody can change it.
 - Paste any pump.fun CA and see how far its fees are from a Hyperliquid ticker.
-  hyperlistchain.vercel.app
+  hyperedgechain.vercel.app
 - Meter update: <x>% of a ticker. Next update loading...
 - Do you feel the edge?
-  hyperlistchain.vercel.app
+  hyperedgechain.vercel.app
 
 Only post numbers the site or the chain shows at that moment (meter %, twin address, snapshot root).
