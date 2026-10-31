@@ -123,27 +123,40 @@
   // ghost is where the creator vault lands in 24 hours if fees keep coming at the last hour's rate.
   const LOG0 = -2, LOG1 = 2                                                     // 0.01 % .. 100 %
   const lpos = (p) => (p > 0 ? Math.max(0, Math.min(1, (Math.log10(p) - LOG0) / (LOG1 - LOG0))) : 0)
+  // the orbit meter: a ring of halftone dots (three lanes, like the first screen's rings) that light clockwise from the
+  // top as the creator vault fills, on a log scale from 0.01 % to a whole ticker; dimmer dots run ahead to where the
+  // vault lands in 24 hours at the last hour's pace. The number in the middle is the share of a ticker right now.
   function gauge(c) {
     const hp = c.unit === 'HYPE', u = hp ? 'HYPE' : 'SOL', tgt = hp ? c.ticker.hype : c.ticker.sol
     const have = c.unclaimed || 0, pct = c.pct || 0, p24 = tgt ? ((have + (c.fees1h || 0) * 24) / tgt) * 100 : 0
-    const xh = lpos(pct), xg = lpos(p24)
-    const marks = [[0.01, '0.01%'], [0.1, '0.1%'], [1, '1%'], [10, '10%'], [100, 'ticker']]
-    const fmt = (v) => (v >= 100 ? n(v, 0) : v >= 1 ? n(v, 2) : n(v, 3))
-    return `<div class="gz">
-      <div class="gz-top"><div><small>toward a Hyperliquid ticker</small><b>${fmt(have)} <em>${u}</em></b><span>unclaimed creator fees${hp ? ', paid in HYPE' : ''}</span></div>
-        <div class="gz-tgt"><small>a ticker right now</small><b>${n(tgt, 0)} <em>${u}</em></b><span>${hp ? 'the HIP-1 auction is priced in HYPE · ' : ''}${usd(c.ticker.usd)}</span></div></div>
-      <div class="gz-track" role="img" aria-label="${n(pct, 3)}% of a ticker">
-        <div class="gz-rail"></div>
-        ${xg > xh + 0.004 ? `<div class="gz-ghost" style="left:${xh * 100}%;width:${(xg - xh) * 100}%"></div>` : ''}
-        ${pct > 0 ? `<div class="gz-fill" style="width:${Math.max(1.5, xh * 100)}%"></div><div class="gz-head" style="left:${Math.max(0.9, xh * 100)}%"></div>` : ''}
-        ${marks.map(([v, l]) => `<div class="gz-mark${v === 100 ? ' end' : v === 0.01 ? ' start' : ''}${v === 0.1 || v === 10 ? ' minor' : ''}" style="left:${lpos(v) * 100}%"><i></i><span>${l}</span></div>`).join('')}
+    const t = lpos(pct), tg = Math.max(t, lpos(p24)), fmt = (v) => (v >= 100 ? n(v, 0) : v >= 1 ? n(v, 2) : n(v, 3))
+    const R = [112, 101, 90], N = [88, 80, 72], dots = [], ANG = (f) => ((120 + 300 * f) * Math.PI) / 180   // a 300-degree dial, open at the bottom
+    R.forEach((r, L) => {
+      for (let i = 0; i < N[L]; i++) {
+        const f = i / (N[L] - 1), a = ANG(f), x = 130 + r * Math.cos(a), y = 130 + r * Math.sin(a)
+        const lit = pct > 0 && f <= t, ghost = !lit && f <= tg, size = L === 1 ? 2.6 : 1.9
+        dots.push(`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(lit ? size : ghost ? size * 0.85 : L === 1 ? 1.7 : 1.35).toFixed(2)}" class="${lit ? 'on' : ghost ? 'gh' : 'off'}"/>`)
+      }
+    })
+    const ha = ANG(t), head = pct > 0 ? `<circle class="hd" cx="${(130 + 101 * Math.cos(ha)).toFixed(1)}" cy="${(130 + 101 * Math.sin(ha)).toFixed(1)}" r="6"/>` : ''
+    const marks = [[0.01, '0.01%'], [0.1, '0.1%'], [1, '1%'], [10, '10%'], [100, 'ticker']].map(([v, l]) => {
+      const a = ANG(lpos(v)), x = 130 + 128 * Math.cos(a), y = 130 + 128 * Math.sin(a)
+      return `<text${v === 100 ? ' class="top"' : ''} x="${x.toFixed(1)}" y="${(y + 3).toFixed(1)}" text-anchor="${Math.cos(a) > 0.3 ? 'start' : Math.cos(a) < -0.3 ? 'end' : 'middle'}">${l}</text>`
+    }).join('')
+    const share = pct <= 0 ? '0' : pct < 0.001 ? '<0.001' : n(pct, pct < 1 ? 3 : 2)
+    return `<div class="om">
+      <div class="om-ring" role="img" aria-label="${share}% of a Hyperliquid ticker">
+        <svg viewBox="-24 -24 308 308">${dots.join('')}${head}${marks}</svg>
+        <div class="om-mid"><b>${share}<i>%</i></b><span>of a Hyperliquid ticker</span><small>log scale</small></div>
       </div>
-      <div class="gz-legend"><span><i class="lg-fill"></i>now · ${n(pct, pct < 1 ? 3 : 2)}%</span>${xg > xh + 0.004 ? `<span><i class="lg-ghost"></i>in 24 h at this pace · ${n(p24, p24 < 1 ? 3 : 2)}%</span>` : ''}<span class="lg-log">log scale</span></div>
-      <div class="gz-stats">
-        <div><small>creator fees, last hour</small><b>${fmt(c.fees1h || 0)} <em>${u}</em></b></div>
-        <div><small>volume, last hour</small><b>${n(c.vol1h || 0, 1)} <em>${u}</em></b></div>
-        <div><small>full at this pace</small><b>${pace(c.etaH)}</b></div>
-      </div></div>`
+      <dl class="om-rows">
+        <div><dt>Unclaimed creator fees</dt><dd>${fmt(have)} <em>${u}</em></dd></div>
+        <div><dt>A ticker right now</dt><dd>${n(tgt, 0)} <em>${u}</em><small>${usd(c.ticker.usd)}${hp ? ' · priced in HYPE' : ''}</small></dd></div>
+        <div><dt>Creator fees, last hour</dt><dd>${fmt(c.fees1h || 0)} <em>${u}</em></dd></div>
+        <div><dt>Volume, last hour</dt><dd>${n(c.vol1h || 0, 1)} <em>${u}</em></dd></div>
+        <div><dt>Full at this pace</dt><dd>${pace(c.etaH)}</dd></div>
+        ${tg > t + 0.004 ? `<p class="om-key"><i class="k-on"></i>now <i class="k-gh"></i>in 24 h at this pace (${n(p24, p24 < 1 ? 3 : 2)}%)</p>` : ''}
+      </dl></div>`
   }
   let gaugeTimer = null
   function liveGauge(mint) {

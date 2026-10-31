@@ -24,3 +24,40 @@
 .top nav { display: none; }
 footer { padding-bottom: 96px; }
 @media (max-width: 560px) { .orbit .pill { gap: 8px; font-size: 12px; padding-left: 12px; } .orbit .pill .pl:first-child { display: none; } .dock a { width: 50px; } }
+
+/* the orbit meter (coin card): halftone ring + the numbers beside it */
+.om { margin-top: 20px; display: grid; grid-template-columns: minmax(220px, 300px) 1fr; gap: 28px; align-items: center; padding: 22px; border-radius: 18px; border: 1px solid var(--l1); background: var(--s0); }
+.om-ring { position: relative; aspect-ratio: 1; }
+.om-ring svg { width: 100%; height: 100%; overflow: visible; }
+.om-ring circle.off { fill: var(--l2); opacity: .9; }
+.om-ring circle.on { fill: var(--accent); }
+.om-ring circle.gh { fill: var(--accent); opacity: .32; }
+.om-ring circle.hd { fill: var(--accent); filter: drop-shadow(0 0 6px var(--accent)); animation: omp 2.4s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes omp { 50% { transform: scale(1.35); opacity: .7 } }
+.om-ring text { font: 500 10px 'Geist Mono', monospace; fill: var(--t3); }
+.om-ring text.top { fill: var(--t2); font-weight: 600; }
+.om-mid { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; gap: 4px; }
+.om-mid b { font: 700 clamp(30px, 4.6vw, 44px)/1 Fredoka, Geist, sans-serif; letter-spacing: -.02em; color: var(--ink); }
+.om-mid b i { font-style: normal; font-size: .55em; margin-left: 2px; color: var(--accent); }
+.om-mid span { font-size: 13px; color: var(--t2); } .om-mid small { font: 500 10px 'Geist Mono', monospace; color: var(--t3); }
+.om-rows { margin: 0; display: grid; }
+.om-rows div { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--l1); }
+.om-rows div:last-of-type { border-bottom: 0; }
+.om-rows dt { color: var(--t2); font-size: 14px; }
+.om-rows dd { margin: 0; text-align: right; font: 600 19px Geist; letter-spacing: -.01em; font-variant-numeric: tabular-nums; color: var(--ink); }
+.om-rows dd em { font-style: normal; font-size: 12px; color: var(--accent); margin-left: 2px; }
+.om-rows dd small { display: block; font: 500 11.5px Geist; color: var(--t3); }
+.om-key { margin: 10px 0 0; font: 500 12px Geist; color: var(--t3); display: flex; align-items: center; gap: 6px; }
+.om-key i { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); display: inline-block; } .om-key i.k-gh { opacity: .32; margin-left: 8px; }
+@media (max-width: 700px) { .om { grid-template-columns: 1fr; } .om-ring { max-width: 280px; margin: 0 auto; width: 100%; } }
+
+/* light theme: the first screen and the dock follow the page */
+:root[data-theme="light"] .orbit { background: #f7faf9; color: #0b1c19; }
+:root[data-theme="light"] .orbit .wm, :root[data-theme="light"] .orbit .ol { color: #0b1c19; }
+:root[data-theme="light"] .orbit .open { background: #0b1c19; color: #fff; } :root[data-theme="light"] .orbit .open:hover { background: #000; }
+:root[data-theme="light"] .orbit .pill { background: rgba(255,255,255,.85); border-color: #dbe6e3; color: #0b1c19; }
+:root[data-theme="light"] .orbit .pill .pl { color: #6b827e; } :root[data-theme="light"] .orbit .pill .mono { color: #2f4c46; }
+:root[data-theme="light"] .orbit .pill .go { background: #edf3f1; } :root[data-theme="light"] .orbit .pill:hover .go { background: #e1ebe8; }
+:root[data-theme="light"] .dock { background: rgba(255,255,255,.9); border-color: #dbe6e3; box-shadow: 0 10px 30px rgba(11,28,25,.08); }
+:root[data-theme="light"] .dock a { color: #6b827e; } :root[data-theme="light"] .dock a:hover, :root[data-theme="light"] .dock a.on { background: #edf3f1; color: #0b1c19; }
+:root[data-theme="light"] .om { background: #fff; box-shadow: 0 1px 2px rgba(11,28,25,.04), 0 12px 32px rgba(11,28,25,.06); }
