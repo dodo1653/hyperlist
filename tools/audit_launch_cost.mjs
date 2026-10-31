@@ -9,7 +9,7 @@ const buy = +(process.argv[2] ?? 0.1), user = new PublicKey(process.argv[3] || '
 const c = new Connection('https://api.mainnet-beta.solana.com', 'confirmed'), mint = Keypair.generate().publicKey
 const acct = async (k) => { const a = await c.getAccountInfo(k); if (a) a.data = Buffer.from(a.data); return a }
 const global = P.PUMP_SDK.decodeGlobal(await acct(P.GLOBAL_PDA)), q = BigInt(Math.floor(buy * 1e9))
-const base = { global, mint, name: 'Audit', symbol: 'AUDIT', uri: 'https://hyperedgechain.vercel.app/m/x.json', creator: user, user, mayhemMode: false }
+const base = { global, mint, name: 'Audit', symbol: 'AUDIT', uri: 'https://hype-edge.vercel.app/m/x.json', creator: user, user, mayhemMode: false }
 let ixs
 if (q > 0n) {
   const vTok = BigInt(global.initialVirtualTokenReserves.toString()), vQ = BigInt(global.initialVirtualSolReserves.toString()), out = vTok - (vTok * vQ) / (vQ + (q * 98n) / 100n)
